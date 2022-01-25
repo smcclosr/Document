@@ -17,12 +17,17 @@ PS-ADMIN > choco install iperf3
 INSTALLATION - Ubuntu
 ---------------------
 
+-Need to do
 
 INSTALLATION - TrueNAS
 ----------------------
 
+- Need to do
+
 INSTALLATION - ESXi
 -------------------
+
+-Need to do
 
 RUNNING IPERF3 SERVER - Windows
 -------------------------------

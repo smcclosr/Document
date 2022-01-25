@@ -1,0 +1,75 @@
+TrueNAS - ISSUE - Intel Network driver with S5512
+-------------------------------------------------
+
+
+
+PROBLEM:  Tyan S5512 has Intel 82574L and is not built into TrueNAS / FreeBSD, but can be built and possibly inserted 
+
+-downloaded FreeNAS 12.2 see if em driver is there: https://download.freebsd.org/ftp/releases/ISO-IMAGES/12.2/FreeBSD-12.2-RELEASE-amd64-disc1.iso
+-Used rufus to install iso to USB
+-tried to build the em driver on FreeNas 12.2, could not, did not have source files, and missing support tools
+-Installed FreeBSD 12.2
+$ pkg install nano
+-Tried to use built in EM driver with command if_em_load="YES" in /boot/loader.conf
+-rebooted and driver did not load
+
+-installed wget
+$ pkg install wget
+
+-download driver from intel:
+$ cd /root
+$ wget https://downloadmirror.intel.com/17509/eng/em-7.7.8.tar.gz
+$ gunzip em-7.7.8.tar.gz
+$ tar xzf em-7.7.8.tar
+$ cd em-7.7.8/src
+
+$ wget https://downloadmirror.intel.com/29667/eng/em-7.7.5.tar.gz
+$ gunzip em-7.7.5.tar.gz
+$ tar xzf em-7.7.5.tar
+$ cd em-7.7.5/src
+
+$ make
+-ERROR: unable to locate the kernel source tree. Set SYSDIR to override
+-checked out source:
+$ svnlite checkout https://svn0.us-west.freebsd.org/base/releng/12.2 /usr/src
+
+-check to see what is loaded in kernel
+$ kldstat
+-Noticed that was able to import built version because size of memory went from 40k to 60k, so while the 
+
+-Replaced Network card x520 with Chelsio T422-CR
+-In order to see the card the following lines needed to be added to /boot/loader.conf
+
+t4fw_cfg_load="YES"
+if_cxgbe_load="YES"
+
+-This activates the network card, but does not configure it needs to be done manually.  Thinking if could add these lines to the installer, then system would take care of configuring the card
+
+-Made a guess that this might not be an issue with TrueNAS versus FreeBSD
+-Installed basic 12.2 TrueNAS, saw the T422-CR network adapater.  Was able to configure IP for 1GB and 10GBE.
+-Network cards are cxgbe0 - cxgbe3, no longer em0,1 and ix0,1
+-Powered down server, added ZFS, powered up and impored ZFS worked fine
+-Loaded config from old server worked well
+-assigned (cxgbe3) 1GB IP address on console, because started up with no IP addresses
+-rebooted, logged onto webgui, removed old network cards, assigned IP address of 192.168.13.2 to cxgbe0
+-Nework services are fine, because saw NFS on ESXi server with no adjustments.
+-System is up and running, need to test other iSCSI disks to see if completely good, but should be because all IP addresses are the same.
+-System works fine with Chelsio and TrueNAS, system is in production
+
+
+Reference SVN:
+--------------
+https://forums.freebsd.org/threads/unable-to-locate-the-kernel-source-tree-set-sysdir.49779/
+
+Reference - building Intel drivers
+----------------------------------
+https://www.supersociedades.gov.co/imagenes/boletin/swsetup/SP51782/PRO1000/DOCS/FREEBSD/freebsd.htm#Building%20em
+
+Reference - Chelsio Drivers
+---------------------------
+https://www.unix.com/man-page/freebsd/4/cxgbe/
+https://www.freebsd.org/cgi/man.cgi?query=cxgbe&sektion=4
+
+Reference - Info about Chelsio Drivers
+--------------------------------------
+https://www.chelsio.com/nic/t4-unified-wire-adapters/t422-cr/

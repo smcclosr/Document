@@ -1,0 +1,47 @@
+TrueNAS - Updating the SAS 2008 to IT mode
+------------------------------------------
+
+-Started here to get the link for the Youtube video (https://forums.serverbuilds.net/t/guide-nas-killer-4-1-supplemental-deals/2187/20)
+-Wached YouTube Video (https://www.youtube.com/watch?v=7exIW_Hlyd8)
+-Went to SuperMicro -> support -> Drivers, searched for X8DT6-F, selected [Windows, Windows 7 64, SAS]
+-Downloaded the SAS IT firmware (PH20.0.4-IT.zip)
+-Extract file
+-Use Rufus, and create USB drive with FreeDOS
+-Dump contents of PH20.0.4-IT\DOS onto FreeDOS USB stick
+-Go to server that needs update
+-Power down, pull connection to all drives, and power up with FreeDOS/IT Firmware
+-list current config, take screen shot:
+> sas2flsh -list
+
+-list new config, take screen shot:
+> sas2flsh -list
+
+-Find SAS2 address, will be on the board, or from the -list: 010324BC0
+
+
+-Backup current roms, (came from https://docs.broadcom.com/doc/12355769):
+> sas2flash –ubios o_bios.rom
+> sas2flash –ufirmware o_fw.fw
+> sas2flash –o -ufwbackup o_fwb.fw
+> sas2flash –o -uflash o_flash.rom
+> sas2flash –o -nvdata o_nvdata.img
+
+Upgrade fimware to IT mode
+>smc2008t.bat
+
+-Dump new roms roms:
+> sas2flash –ubios n_bios.rom
+> sas2flash –ufirmware n_fw.fw
+> sas2flash –o -ufwbackup n_fwb.fw
+> sas2flash –o -uflash n_flash.rom
+> sas2flash –o -nvdata n_nvdata.img
+
+-Check flash settings by control-C
+-If looks good, power down server, re-attach drives and power up.
+-save copy of ROM,FW and IMG files
+-process went fine.  Also downloaded IR version of files so if want to upgrade to a SAS RAID controller in future, can do with relative ease.
+
+Reference:
+----------
+https://forums.serverbuilds.net/t/guide-nas-killer-4-1-supplemental-deals/2187/20
+https://docs.broadcom.com/doc/12355769

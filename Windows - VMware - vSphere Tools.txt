@@ -1,0 +1,61 @@
+Windows - VMware - vSphere tools
+--------------------------------
+
+Version:	1.00
+Date:		2020.04.07
+Notes:		Initial version, needed to build because of changes with clent starting at 11.0
+
+Version:	2.00
+Date:		2022.01.24
+Notes:		Updated for Windows 10, and ESXi 6.7 U3, 4.1 is archived
+
+This is for my environment, it is a ESXi 4.1, which is out of support, but still using, want to continue to upgrade VMware tools
+
+ARCHIVE 4.1 - Pre-installation
+------------------------------
+-Needs VC redistributible 2017, using Chocolatey
+
+PS> choco install vcredist2017
+
+-reboot system
+
+Getting Updates:
+----------------
+-Go to https://packages.vmware.com/tools/esx/latest/windows
+-Pull down the iso file
+-Uploade it to a datastore on the host
+
+Installation of tools:
+----------------------
+-Attach the tools ISO to the Windows VM Guest
+-Log onto the VM, 
+-Do the installation then reboot
+
+Verify version from client:
+---------------------------
+CMD: C:\Program Files\VMware\VMware Tools\VMwareToolboxCmd.exe -v
+
+Setting Timeout 
+---------------
+
+-Select Start > Run.
+-Type regedit.exe, and click OK.
+-In the left-panel hierarchy view, double-click HKEY_LOCAL_MACHINE > System > CurrentControlSet > Services > Disk.
+-Double-click TimeOutValue.
+-Set the value data to 0x3c (hexadecimal) or 60 (decimal) and click OK.
+
+Verify version from host:
+-------------------------
+-reference document: https://kb.vmware.com/s/article/1003947
+
+grep toolbox /vmfs/volumes/datastore/vm_name/vmware.log
+
+
+Reference:
+https://kb.vmware.com/s/article/55798
+https://kb.vmware.com/s/article/1003947
+
+Reference - Windows Guest Timeout:
+----------------------------------
+https://docs.vmware.com/en/VMware-vSphere/7.0/com.vmware.vsphere.storage.doc/GUID-EA1E1AAD-7130-457F-8894-70A63BD0623A.html
+https://docs.vmware.com/en/VMware-vSphere/6.7/com.vmware.vsphere.storage.doc/GUID-EA1E1AAD-7130-457F-8894-70A63BD0623A.html

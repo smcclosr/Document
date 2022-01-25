@@ -1,0 +1,58 @@
+VMware - setting up SNMP monitoring
+-----------------------------------
+
+Version:	1.00
+Date:		2022.01.18
+Notes:		Initial build
+
+Version:	1.01
+Date:		2022.01.18
+Notes:		Pulled out the passwords from the document for security reasons.
+
+Version:	1.02
+Date:		2022.01.19
+Notes:		Updated the location to "40.519242 -74.641239" from "40.519242, -74.641239" because the IMM will not accept a comma in the location
+
+This document was built for the monitoring of the ESXi host.  It was done once the Observium app was set up.  I will not use SNMP v2 because of the security risks.
+
+
+Setting up SNMP v3
+-------------------
+-this document was built for HOST2, which is vSpere ESXi 6.7, but should be very similar for other versions.
+
+-Log onto the ESXi host via putty / SSH
+
+Create this file following contents:
+
+/etc/snmp_auth
+** Password for SNMP Authentication **
+
+/etc/snmp_pass
+** Password for SNMP Privacy Key **
+
+-Run the following commands
+
+esxcli system snmp set --engineid 223322aceb
+esxcli system snmp set --authentication SHA1
+esxcli system snmp set --privacy AES128
+
+-This command will generate hashes of the passwords from those two files.  My guess is that each ESXi host would generate different hashed with the same paswords.
+esxcli system snmp hash --auth-hash /etc/snmp_auth --priv-hash /etc/snmp_pass
+
+Authhash: b125004aedce9644c6b81a445615c764c9990190
+Privhash: 9405e0da79f38642775475cd2a3f66b438829787
+
+esxcli system snmp set --users monitor/b125004aedce9644c6b81a445615c764c9990190/9405e0da79f38642775475cd2a3f66b438829787/priv
+esxcli system snmp set --v3targets 192.168.11.89@161/monitor/priv/inform
+esxcli system snmp set --enable true
+
+# esxcli system snmp set --syslocation "Hillsborough"
+esxcli system snmp set --syslocation "40.519242 -74.641239"
+# esxcli system snmp set --targets=192.168.11.89@161/monitor
+
+-For cleanup you can delete /etc/snmp_auth and /etc/snmp_pass just remember 
+
+
+https://docs.vmware.com/en/VMware-vSphere/6.7/com.vmware.vsphere.monitoring.doc/GUID-4AF8AA5F-D652-4080-B984-B36A25456A4B.html
+https://docs.vmware.com/en/VMware-vSphere/6.7/com.vmware.vsphere.monitoring.doc/GUID-80F57452-2676-45B8-8FD9-3C8DA8A81E99.html
+https://docs.vmware.com/en/VMware-vSphere/6.7/com.vmware.vsphere.monitoring.doc/GUID-8FA79C0D-52BD-408B-9BF0-FEB4B8F04519.html

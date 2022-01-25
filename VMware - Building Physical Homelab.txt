@@ -1,0 +1,121 @@
+VMware - Building Physical Homelab
+----------------------------------
+
+	This document will detail what is and what has been done to Physical homelab.  All work will be happening on bare metal, not within any hypervisors.
+
+Version:	2.00
+Date:		2020.12.08
+Notes:		This is a catch up to current document.  Previous version 1.x was not documented
+
+Version:	2.01
+Date:		2021.09
+Notes:		Removal of HOST1 because it is decommed
+
+Version:	2.02
+Date:		2022.01.10
+Notes:		Changing MTU on Storage to 9000 from 1500
+
+Version: 	2.03
+Date:		2022.01.18
+Notes:		Addition of SNMP to host, disabling non connected network cards
+
+Version:	2.04
+Date:		2022.01.24
+Notes:		Addition about vSphere tools for Windows
+
+
+Current Hardware:
+-----------------
+
+Host 2:
+=======
+IP Address:			192.168.11.68
+Hardware:			IBM DataPlex dx360 M4
+vSphere version:	6.7 U3
+Name:				host2.localdomain
+
+CONFIG - Adjusting MTU to 9000 for storage adapters on ESXi host
+----------------------------------------------------------------
+
+-In order to maximize efficiency of connection between ESXi host and the TrueNAS NAS, this will reconfigure the server
+-Log onto the WebGUI
+-Go to 
+
+CONFIG - Adjusting of MTU to 9000 for storage adapter on TrueNAS appliance
+--------------------------------------------------------------------------
+
+-All of this in the document "TrueNAS - Setup and Config"
+
+CONFIG - Testing of storage connection to verify it is using 9000 MTU instead of 1500
+-------------------------------------------------------------------------------------
+
+-All of this in the document "TrueNAS - Setup and Config"
+
+CONFIG - Adding SNMP to server
+------------------------------
+-All of this work is being done in the document "VMware - setting up SNMP monitoring"
+
+CONFIG - Disable non-connected network cards
+--------------------------------------------
+-This is being done for 2 reasons.  First, once setting up monitoring with the document "Linux - App - Observium Monitoring" non connected network ports were showing up as down ports, and after thinking, it would increase security
+
+-This cannot be done on the WebGUI, must be done fron the console
+-SSH to ESXi
+-Look at the up/down status of the NICS with the following command:
+SH> esxcli network nic list
+
+Name    PCI Device    Driver  Admin Status  Link Status  Speed  Duplex  MAC Address         MTU  Description
+------  ------------  ------  ------------  -----------  -----  ------  -----------------  ----  -----------------------------------------------------------------------
+vmnic0  0000:06:00.0  igbn    Up            Up            1000  Full    40:f2:e9:02:9b:58  1500  Intel Corporation I350 Gigabit Network Connection
+vmnic1  0000:06:00.1  igbn    Up            Up            1000  Full    40:f2:e9:02:9b:59  1500  Intel Corporation I350 Gigabit Network Connection
+vmnic2  0000:20:00.0  qlcnic  Up            Up           10000  Full    5c:f3:fc:37:9a:70  9000  QLogic Corp QLogic QDI8242 10GbE Virtual Fabric Adapter for IBM SystemX
+vmnic3  0000:20:00.1  qlcnic  Up            Down             0  Half    5c:f3:fc:37:9a:74  1500  QLogic Corp QLogic QDI8242 10GbE Virtual Fabric Adapter for IBM SystemX
+vmnic4  0000:20:00.2  qlcnic  Up            Up           10000  Full    5c:f3:fc:37:9a:71  9000  QLogic Corp QLogic QDI8242 10GbE Virtual Fabric Adapter for IBM SystemX
+vmnic5  0000:20:00.3  qlcnic  Up            Down             0  Half    5c:f3:fc:37:9a:75  1500  QLogic Corp QLogic QDI8242 10GbE Virtual Fabric Adapter for IBM SystemX
+vmnic6  0000:86:00.0  igbn    Up            Up            1000  Full    90:e2:ba:6c:40:a4  1500  Intel Corporation 82580 Gigabit Network Connection
+vmnic7  0000:86:00.1  igbn    Up            Down             0  Half    90:e2:ba:6c:40:a5  1500  Intel Corporation 82580 Gigabit Network Connection
+vmnic8  0000:86:00.2  igbn    Up            Down             0  Half    90:e2:ba:6c:40:a6  1500  Intel Corporation 82580 Gigabit Network Connection
+vmnic9  0000:86:00.3  igbn    Down          Down             0  Half    90:e2:ba:6c:40:a7  1500  Intel Corporation 82580 Gigabit Network Connection
+vusb0   Pseudo        cdce    Up            Up             100  Full    42:f2:e9:02:9b:5d  1500  IBM RNDISEthernet Gadget
+
+-in this configuration 3,5,7,8,9 are down, so will disable them
+
+SH> esxcli network nic down -n vmnic3
+SH> esxcli network nic down -n vmnic5
+SH> esxcli network nic down -n vmnic7
+SH> esxcli network nic down -n vmnic8
+SH> esxcli network nic down -n vmnic9
+
+-a side effect of these changes, in order to connect a NIC to any open port, it must be enabled before any traffic will pass.  Here is updated list of NICS
+
+Name    PCI Device    Driver  Admin Status  Link Status  Speed  Duplex  MAC Address         MTU  Description
+------  ------------  ------  ------------  -----------  -----  ------  -----------------  ----  -----------------------------------------------------------------------
+vmnic0  0000:06:00.0  igbn    Up            Up            1000  Full    40:f2:e9:02:9b:58  1500  Intel Corporation I350 Gigabit Network Connection
+vmnic1  0000:06:00.1  igbn    Up            Up            1000  Full    40:f2:e9:02:9b:59  1500  Intel Corporation I350 Gigabit Network Connection
+vmnic2  0000:20:00.0  qlcnic  Up            Up           10000  Full    5c:f3:fc:37:9a:70  9000  QLogic Corp QLogic QDI8242 10GbE Virtual Fabric Adapter for IBM SystemX
+vmnic3  0000:20:00.1  qlcnic  Down          Down             0  Half    5c:f3:fc:37:9a:74  1500  QLogic Corp QLogic QDI8242 10GbE Virtual Fabric Adapter for IBM SystemX
+vmnic4  0000:20:00.2  qlcnic  Up            Up           10000  Full    5c:f3:fc:37:9a:71  9000  QLogic Corp QLogic QDI8242 10GbE Virtual Fabric Adapter for IBM SystemX
+vmnic5  0000:20:00.3  qlcnic  Down          Down             0  Half    5c:f3:fc:37:9a:75  1500  QLogic Corp QLogic QDI8242 10GbE Virtual Fabric Adapter for IBM SystemX
+vmnic6  0000:86:00.0  igbn    Up            Up            1000  Full    90:e2:ba:6c:40:a4  1500  Intel Corporation 82580 Gigabit Network Connection
+vmnic7  0000:86:00.1  igbn    Down          Down             0  Half    90:e2:ba:6c:40:a5  1500  Intel Corporation 82580 Gigabit Network Connection
+vmnic8  0000:86:00.2  igbn    Down          Down             0  Half    90:e2:ba:6c:40:a6  1500  Intel Corporation 82580 Gigabit Network Connection
+vmnic9  0000:86:00.3  igbn    Down          Down             0  Half    90:e2:ba:6c:40:a7  1500  Intel Corporation 82580 Gigabit Network Connection
+vusb0   Pseudo        cdce    Up            Up             100  Full    42:f2:e9:02:9b:5d  1500  IBM RNDISEthernet Gadget
+
+Installation of vSpere tools for windows:
+-----------------------------------------
+
+-Refer to the document "Windows - VMware - vSphere tools"
+
+Current Issue - 6.7 U3 will not automatically boot with UEFI
+------------------------------------------------------------
+-Was installed with image 'VMware-ESXi-6.7.0.update03-14320388-LNV-20190814' from https://vmware.lenovo.com/content/custom_iso/6.7/6.7u3/, it is now upgraded to 'VMware-ESXi-6.7.0.update03-16713306-LNV-20200902' this might resolve the issue with the EFI file.
+
+WORKAROUND: While booting up, choose F12, then the instlaled_hyervisor
+
+Reference - boot issues:
+------------------------
+https://communities.vmware.com/t5/ESXi-Discussions/esxi-cannot-boot-after-updating-to-6-7-u3-how-to-fix-it/td-p/2217397/page/2
+
+Reference - Disable NICS
+------------------------

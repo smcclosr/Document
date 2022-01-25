@@ -28,7 +28,7 @@ Getting Updates:
 Installation of tools:
 ----------------------
 -Attach the tools ISO to the Windows VM Guest
--Log onto the VM, 
+-Log onto the VM.
 -Do the installation then reboot
 
 Verify version from client:

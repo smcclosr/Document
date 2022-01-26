@@ -1,0 +1,102 @@
+Windows - APP - Storj node
+
+Date:		2021.08.31
+Version:	1.00
+Notes:		Initial build on VW-TEST02 (Chia Node)
+
+Date:		2022.01.26
+Version:	1.01
+Notes:		Cleaned up for import to GitHub
+
+
+Setup of Storage for node
+-------------------------
+	Through trial and error, found out that network drives are not available, needs to be a local drive on the node.  For my purposes, I have created a Windows Storage space drive (G:\) for the data.  It will take access of the full disk, so make sure it is empty.
+	The advantage of storage spaces is that adding additional space will be managed by the OS, and all underlying partitions will be hidden from all tools.
+
+Get authorization token
+-----------------------
+- go to https://www.storj.io/host-a-node, and enter your email address. Once that is submitted, you will get an email address back with your token:
+Authorization Token: **STORED IN KEEPASS**
+
+Get the the identity binary
+---------------------------
+-This will be done on the node you are setting up
+-Open a standard Powershell window:
+
+PS> [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; curl https://github.com/storj/storj/releases/latest/download/identity_windows_amd64.zip -o identity_windows_amd64.zip; Expand-Archive ./identity_windows_amd64.zip . -Force
+
+Create Idendentity
+PS> ./identity.exe create storagenode
+
+Authorize Idendity
+PS> ./identity.exe authorize storagenode <email:characterstring>
+PS> ./identity.exe authorize storagenode **STORED IN KEEPASS**
+
+Confirm Idendentity
+PS> (sls BEGIN "$env:AppData\Storj\Identity\storagenode\ca.cert").count
+PS> (sls BEGIN "$env:AppData\Storj\Identity\storagenode\identity.cert").count
+
+-Should return 2 and 3 respectively
+
+Setup of the firewall
+---------------------
+-Open an administrative Powershell window and run the following commands:
+
+PS> New-NetFirewallRule -DisplayName "Storj v3 TCP" -Direction Inbound –Protocol TCP –LocalPort 28967 -Action allow
+PS> New-NetFirewallRule -DisplayName "Storj v3 UDP" -Direction Inbound –Protocol UDP –LocalPort 28967 -Action allow
+
+Setup - Port forwarding on pfSense
+----------------------------------
+
+-Go to pfSense and open port 28967 with TCP/UDP to IP address of node: ** IP STORED IN KEEPASS **
+
+Installation of the Storage Node softare
+----------------------------------------
+-Download the software 
+
+-Download software from this location: https://github.com/storj/storj/releases/latest/download/storagenode_windows_amd64.msi.zip
+
+-Extract the software
+-Accept the license
+-Choose default folder
+-Identity folder should point to your profile
+-Enter ethernet address to wallet.  Started as ENJ wallet app address, changed to https://wallet.zksync.io/account because of ETH gas prices.
+-Enter email address for updates
+-Enter external IP:28967
+-Enter location of G:\ for storage
+-Enter 1.0T for 1.0 TB of storage
+-Software will install.
+
+Opening up windows Storj Dashboard
+----------------------------------
+-Run either 'Storage Node Dashboard' or go to http://127.0.0.1:14002/
+-Should see data, and also the information populating, it will take weeks to fill up the full 1.0 TB of space
+
+setting up payments in zkSync
+-----------------------------
+	There is a concern that payment of Storj on the Ethernet network will cause small and severly delayed payments.  That is becasue of the high ETH gas fees, and thus using zkSync, will allow more frequent and lower threshold payments, which should provide more tokens to you
+
+-Log into https://wallet.zksync.io/
+-Connect your MetaMask wallet to zksync.io
+-Edit the config.yaml with the following changes, add the following line:
+
+operator.wallet-features: ["zksync"]
+
+-change the wallet to match your MetaMask ethernet address:
+
+operator.wallet: ** CRYPTO ADDRESS STORED IN KEEPASS **
+
+-restart the service, and check dashboard
+-Should see new etherenet address, also there should be a little green checkmark that zkSync should be available.
+
+Reference:
+----------
+https://docs.storj.io/node/dependencies/identity
+https://docs.storj.io/node/dependencies/port-forwarding
+https://docs.storj.io/node/setup/gui-windows/storage-node
+https://docs.storj.io/node/setup/gui-windows/dashboard
+https://www.reddit.com/r/storj/comments/p13cnb/ive_been_running_my_node_for_3_months_and_no/
+https://docs.storj.io/node/dependencies/storage-node-operator-payout-information/zk-sync-opt-in-for-snos
+
+https://forum.storj.io/t/realistic-earnings-estimator/6693

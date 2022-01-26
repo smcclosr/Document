@@ -1,0 +1,47 @@
+Windows - Partition Resize Windows 10
+-------------------------------------
+
+Version:	1.00
+Date:		2021.06.11
+Notes:		Initial build
+
+Version:	1.01
+Date:		2021.08.20
+Notes:		Fleshed out procedure
+
+-With the newer versions of desktop windows, a recovery partition is placed after the C: partion, so expanding the partition is a little harder. these directions will enable you to backup that partition, delete it, then re-insert it.
+
+-Open an admin command prompt, the diskpart Command will assign letter to this partition.
+
+CMD> diskpart
+DISKPART> list disk
+DISKPART> select disk <the-number-of-disk-where-current-recovery-partition-locate, usually 0>
+DISKPART> list partition
+DISKPART> select partition <the-number-of-current-recovery-partition>
+DISKPART> assign letter=O
+DISKPART> exit
+
+-This command will back up the contents of the recovery partition which is at letter O: to the file recovery-partition.wim, which is at H:\
+
+CMD> Dism /Capture-Image /ImageFile:H:\recovery-partition.wim /CaptureDir:O:\ /Name:"Recovery"
+
+-This will disable the recovery partition, and confirm it is disabled:
+
+CMD> reagentc /disable
+CMD> reagentc /info
+
+-Use Diskmanager and delete the 499 MB partition of O:
+-Expand C: but short it 500 MB
+-Create a new simple partition of 500 MB and add letter of N:
+-Now we will recover and enable the Recovery Partition, and test it is working:
+
+CMD> Dism /Apply-Image /ImageFile:C:\recovery-partition.wim /Index:1 /ApplyDir:N:\
+CMD> reagentc /setreimage /path N:\Recovery\WindowsRE
+CMD> reagentc /enable
+CMD> reagentc /info
+
+-Delete recovery-partition.wim
+
+Reference - Backup and restore Recovery Partition
+-------------------------------------------------
+https://superuser.com/questions/1453790/how-to-move-the-recovery-partition-on-windows-10

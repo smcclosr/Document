@@ -163,7 +163,6 @@ Add line: root-hints: "/etc/unbound/root.hints"
 MAINTENANCE - Building Youtube blacklist
 ----------------------------------------
 
-
 File: bl_youtube.txt
 
 MAINTENANCE - Building instagram blacklist

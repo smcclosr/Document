@@ -1,0 +1,285 @@
+Linux - PiHole
+--------------
+
+Version:	1.00
+Date:		2020.11.06
+Notes:		Initial version
+
+Version:	1.01
+Date:		2020.12.01
+Notes:		Moved document to OneNote - see there
+
+Version		1.02
+Date:		2021.06.17
+Notes:		Added instructions for bl_9gag.txt, which will be a role model for all custom blacklists
+	
+Version:	1.03
+Date:		2021.08.11
+Notes		Added repairs for Quick Assist App, whitelist and Issue 07
+	
+Version		1.04
+Date:		2022.01.11
+Notes		Added section for TikTok blocking
+
+Version:	1.05
+Date:		2022.01.26
+Notes:		Cleaned up document to import into GitHub
+
+
+OS Installation - Configuration points
+--------------------------------------
+
+-When installing OS, choose a static IP address.
+-Linux OS is CentOS / RedHat
+
+Pi Hole - Pre-Installation steps:
+---------------------------------
+
+Run the following commands with sudo
+
+#$ sudo firewall-cmd --permanent --add-service=http --add-service=dns --add-service=dhcp --add-service=dhcpv6
+#$ sudo firewall-cmd --permanent --new-zone=ftl
+#$ sudo firewall-cmd --permanent --zone=ftl --add-interface=lo
+#$ sudo firewall-cmd --permanent --zone=ftl --add-port=4711/tcp
+#$ sudo firewall-cmd --reload
+
+-create a directory called pi in home directory, this will be used for backups later
+
+Installation of Pi Hole:
+-change the selinux of CentOS
+
+#$ sudo nano /etc/selinux/config
+
+-Change SELINUX=enforcing to permissive
+-Save file then reboot
+
+#$ git clone --depth 1 https://github.com/pi-hole/pi-hole.git Pi-hole
+#$ cd "Pi-hole/automated install/"
+#$ sudo bash basic-install.sh
+
+Changing administrator Password:
+--------------------------------
+     This procedure will change the password of the PiHole server.  When installed it generates a password.  This will  enable you to create your own password.
+
+-Putty into server
+
+#$ Pi-hole/pihole -a -p
+
+-Enter new password
+
+Adding servers to local DNS:
+----------------------------
+    This procedure will add local servers that need to be in DNS for services that need name resolution
+
+-Go to [Local DNS] -> [DNS Records]
+-Add hostname to Domain: and IP Address to IP Address: then click add.
+-Test by pinging domain name
+-Current List:
+**LIST IN KEEPASS**
+
+
+Maintenance - Backup of system:
+-------------------------------
+
+-One time, Create a backup script (backup.sh) with the following lines:
+1)
+--------------------------------------------------------------
+#! /bin/bash
+
+sqlite3 /etc/pihole/pihole-FTL.db ".backup /home/shawn/pi/pihole-FTL.db.backup"
+-----------------------------------------------------------
+#$ chmod u+x backup.sh
+
+2)
+-manually run backup.sh script to backup database
+-(continuous) Backup system with UrBackup,  want to backup home directory and /var/www/html
+-manually run Backup configuration with WebGUI - [Settings] - [Teleporter] - [Backup].  Save file to OneDrive\documents\CD_Documents_sync\Pi-Hole Configs\{servername}
+
+CONFIG - Creating your own blacklist to be an adlist
+----------------------------------------------------  
+  This procedure will create a text file on the local web server on the pihole server.  The advantage of this is you can use the pihole to create own blacklist
+
+-Putty into server
+
+#$ sudo nano /var/www/html/blacklist_name.txt
+
+-add or edit the file
+-save and exit
+
+CONFIG  - Adding new Adlists:
+-----------------------------
+
+-Go to WebGui
+-Select [Group Management] -> [Adlists]
+-Add the url to Address: and comment to Comment:
+-Click [Add]
+-find new entry in the section List of Configured adlists
+-Choose which groups it will apply to, then click [Apply]
+-Use putty to log onto the console of the pi-hole system and run the following command which will update that database:
+
+#$ Pi-Hole/pihole -g
+
+CONFIG - Adding unbound
+-----------------------
+
+   The Pi-hole directions are made for Ubuntu system, needed to make some small changes for CentOS / Redhat
+
+Install Unbound:
+#$ sudo yum install unbound
+
+Create config file:
+-Use notepad++ and create a file called unbound.conf with the settings from https://docs.pi-hole.net/guides/dns/unbound/.  The document calls to name the file as pi-hole.conf, but we will be using unbound.conf
+-Upload file to server using Filezilla.
+-Rename and replace file:
+
+#$ sudo ren /var/unbound/unbound.conf /var/unbound/unbound.conf.ori
+#$ sudo mv unbound.conf /var/unbound/unbound.conf
+
+
+Pull down root.hints
+
+#$ wget https://www.internic.net/domain/named.root -O /etc/unbound/root.hints
+
+Edit /var/unbound/unbound.conf
+-nano file
+Add line: root-hints: "/etc/unbound/root.hints"
+
+
+-Restart and test service:
+
+#$ sudo service unbound restart
+#$ dig pi-hole.net @127.0.0.1 -p 5335
+
+-Configure Pi-Hole:
+-Log onto Web interface
+-Go to [Settings], [DNS]
+-uncheck all Upstream DNS
+-Check Custom 1 IP
+-Enter : 127.0.0.1#5535
+-Save Settings with [SAVE]
+
+
+
+MAINTENANCE - Building Youtube blacklist
+----------------------------------------
+
+
+File: bl_youtube.txt
+
+MAINTENANCE - Building instagram blacklist
+------------------------------------------
+
+File: bl_instagram.txt
+
+MAINTENANCE - Building webtoons blacklist
+-----------------------------------------
+
+File: bl_webtoons.txt
+
+MAINTENANCE - Building 9gag blacklist
+-------------------------------------
+
+-Go to 9gag and surf around for a while to build up list
+-Open PiHole admin, go to [Long Term Data] -> [Query Log]
+-Filter for today, then in search enter 9gag
+-Set rows to all, then highlight all rows, copy and paste to notepad document named bl_9gag_raw.txt, save file
+-Open command prompt, go to location of raw text file
+DOS> busybox bash
+~ cat bl_9gag_raw.txt | awk '{print $5}' | sort |uniq > bl_9gag.txt
+~ cat tiktok.txt | awk '{print $5}' | sort |uniq > bl_tiktok.txt
+~ cat bl_tiktok3.txt | sort |uniq > bl_tiktok.txt
+
+
+-This command will pull out the correct column, sort it, and make unique list, then sent to final file
+-Use filezilla to upload bl_9gag.txt
+-Log onto PiHole server
+
+# sudo cp bl_9gag.txt /var/www/html
+
+-Go back to Web Instance, and add the list [Group Management] -> [Adlists]
+-Address: http://**IP ADDRESS IN KEEPASS**/bl_9gag.txt Comment: BlackList - 9gag
+
+# Pi-hole/pihole -g
+
+-Assign 'BlackList - 9gag' to Groups
+
+MAINTENANCE - Building TikTok blacklist
+---------------------------------------
+
+-This will be built from live data that Tiktok generates from forbidden IP addresses.  Those current addresses are 11.26 (android Phone for Julie)
+-Open PiHole admin, go to [Long Term Data] -> [Query Log]
+-Uncheck 8 blocked categories, leave all 3 permitted
+-Filter for today, then in search enter tiktok
+-Set rows to all, then highlight all rows, copy and paste to notepad document named bl_tiktok_raw.txt, save file
+-Open command prompt, go to location of raw text file
+DOS> busybox bash
+~ grep "** IP ADDRESS OF COMPUTER TO BLOCK**" bl_tiktok_raw.txt | awk '{print $5}' | sort |uniq > bl_tiktok.txt
+
+-This command will pull out the correct column, sort it, and make unique list, then sent to final file
+-Use filezilla to upload bl_tiktok.txt
+-Log onto PiHole server
+
+# sudo cp bl_tiktok.txt /var/www/html
+
+-Go back to Web Instance, and add the list [Group Management] -> [Adlists]
+-Address: http://**IP ADDRESS IN KEEPASS**/bl_tiktok.txt Comment: BlackList - tiktok
+
+# Pi-hole/pihole -g
+
+-Assign 'BlackList - tiktok' to pre-teen
+
+
+MAINTENANCE - Building localdomain blacklist
+--------------------------------------------
+
+Added because was seeing a lot of random localdomain calls.
+Will need to revisit every once in a while, not sure if associated with malware; does not contain wpad.localdomain
+
+File: bl_localdomain.txt
+
+MAINTENANCE - Whitelist
+-----------------------
+
+These are domains that need to be whitelisted:
+
+**INFO IS IN KEEPASS**
+
+
+MAINTENANCE  - Updating Gravity Database:
+-----------------------------------------
+    This procedure is used to update the Gravity database which blocks the websites.  This needs to be done 1) when adding a new adlist, 2) after updating personal adlist or 3) periodically when list are updated from the internet
+
+-Use putty to log onto the console of the pi-hole system and run the following command which will update that database:
+
+$> Pi-Hole/pihole -g
+
+MAINTENANCE  - Updating application:
+------------------------------------
+
+$> Pi-Hole/pihole -up
+
+ISSUE - server:
+---------------
+-Tried Ubuntu 18.04.05 LTS, it didn't like it even though was supported.  Moved to CentOS 8 and worked fine
+
+
+Reference:
+https://docs.pi-hole.net/main/prerequisites/
+https://docs.pi-hole.net/main/basic-install/
+https://wiki.centos.org/HowTos/SELinux
+https://docs.pi-hole.net/database/ftl/ 
+https://linuxhandbook.com/run-shell-script/
+https://gitlab.com/The_Quantum_Alpha/the-quantum-ad-list
+
+Reference - Unbound:
+https://docs.pi-hole.net/guides/dns/unbound/
+https://www.redhat.com/sysadmin/bound-dns
+https://www.redhat.com/sysadmin/forwarding-dns-2
+You're running Pi-Hole wrong! Setting up your own Recursive DNS Server!
+
+Reference - Quick Assist:
+https://docs.microsoft.com/en-us/windows/client-management/quick-assist
+
+Reference:
+----------
+https://www.youtube.com/watch?v=dH3DdLy574M 

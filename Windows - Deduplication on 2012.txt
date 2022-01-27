@@ -21,14 +21,14 @@ PS C:\> Import-Module Deduplication
 
 Verify is installed in PS:
 --------------------------
-get-windowsfeature | where installed
+PS C:\> get-windowsfeature | where installed
 
 
 Start Dedup on Z: wiht 5 day age 
 --------------------------------
 PS C:\> Enable-DedupVolume Z:
 PS C:\> Set-Dedupvolume Z: -MinimumFileAgeDays 5
-PS C:\>  Start-DedupJob -Type Optimization -Volume Z:
+PS C:\> Start-DedupJob -Type Optimization -Volume Z:
 
 Verify is installed in PS:
 --------------------------
@@ -45,7 +45,7 @@ PS C:\> Get-DedupStatus
 Run manual garbage collection
 -----------------------------
 -useful after deletion of a large amount of files
-start-dedupjob -volume M: -type garbagecollection
+PS C:\> start-dedupjob -volume M: -type garbagecollection
 
 Run manual optimiztion
 ----------------------

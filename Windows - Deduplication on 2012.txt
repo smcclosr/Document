@@ -1,0 +1,62 @@
+Windows - Deduplication on 2012
+-------------------------------
+
+Version:	1.00
+Date:		2017.10.14
+Notes:		Version added to document
+
+Version:	1.01
+Date:		2019.02.01
+Notes:		Added verification that was installed
+
+Version:	1.50
+Date:		2022.01.27
+Notes:		Prepping document for incorperation into GitHub
+
+Installation of dedupe
+----------------------
+PS C:\> Import-Module ServerManager
+PS C:\> Add-WindowsFeature -name FS-Data-Deduplication
+PS C:\> Import-Module Deduplication
+
+Verify is installed in PS:
+--------------------------
+get-windowsfeature | where installed
+
+
+Start Dedup on Z: wiht 5 day age 
+--------------------------------
+PS C:\> Enable-DedupVolume Z:
+PS C:\> Set-Dedupvolume Z: -MinimumFileAgeDays 5
+PS C:\>  Start-DedupJob -Type Optimization -Volume Z:
+
+Verify is installed in PS:
+--------------------------
+PS C:\> get-windowsfeature | where installed
+
+Check on DeDupe settings
+------------------------
+PS C:\> Get-Dedupjob
+
+Check on DeDup status
+---------------------
+PS C:\> Get-DedupStatus
+
+Run manual garbage collection
+-----------------------------
+-useful after deletion of a large amount of files
+start-dedupjob -volume M: -type garbagecollection
+
+Run manual optimiztion
+----------------------
+PS C:\> start-dedupjob -volume M: -type optimization
+
+See how efficent deduplication is:
+----------------------------------
+PS C:\> Get-DedupStatus E: | fl
+
+References:
+http://blogs.technet.com/b/canitpro/archive/2013/04/29/step-by-step-enabling-data-deduplication-on-windows-server-2012-volumes.aspx
+http://technet.microsoft.com/en-us/library/hh831602.aspx
+https://technet.microsoft.com/en-us/library/hh848442.aspx
+https://kallesplayground.wordpress.com/useful-stuff/windows-server-2012-r2-data-deduplication/

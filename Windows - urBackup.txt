@@ -1,0 +1,468 @@
+Windows - urBackup
+==================
+
+Version:	1.00
+Date:		2017.09.09
+Notes:		Initial build
+
+Version:	1.01
+Date:		2017.10.16
+Notes:		Update for the build of V12-BACKUP02
+
+Version:	1.02
+Date:		2018.03.23
+Notes:		Cleaning up the documentation, added commandline functionality, changed some administrative settings
+
+Version:	1.03
+Date:		2018.03.30
+Notes:		Added entry for Linux client
+
+Version:	1.04
+Date:		2018.03.31
+Notes:		Added https access to server with stunnel
+
+Version:	1.05
+Date:		2018.09.15
+Notes:		Updated process to build second server in paralell.  Updating architecture, first server is virtual, and for on-site restore. Second server is for offsite archive of data
+
+Version:	1.06
+Date:		2018.11.27
+Notes:		Updated Linux Install for client version 2.2.5 to 2.2.6
+
+Version:	1.07
+Date:		2019.01.05
+Notes:		Cleaning up documentation
+
+Version:	1.08
+Date:		2019.01.19
+Notes:		Upgrade of server
+
+Version:	1.09
+Date:		2019.04.18
+Notes:		Move of 2nd server from Malachite to PW-WIN06
+
+Version:	1.10
+Date		2019.05.28
+Notes:		Backups were taking too much bandwidth, so pulling down so Matthew can use his computer uniterrupted
+
+Version:	1.11
+Date:		2019.09.15
+Notes:		Added section for repair of client
+
+Version:	1.12
+Date:		2020.03.26
+Notes:		Update config for Advanced Section
+
+Version:	1.13
+Date:		2020.05.15
+Notes:		Added section 'Windows - Client - Re-installation' because backup was broken on MALACHITE-IV
+
+Version:	1.14
+Date:		2020.10.25
+Notes:		Error on run on server, documented repair of server.
+
+Version:	1.15
+Date:		2020.11.29
+Notes:		Updated and verified Linux directions, installed new client on vu-docker
+
+Version:	1.16
+Date:		2020.12.02
+Notes:		Updated for CentOS client, adjust firewall ports.
+
+Version:	1.17
+Date:		2021.05.28
+Notes:		Troubleshooting no backups on PW-DX360-01
+
+Version:	1.18
+Date:		2021.12.11
+Notes:		Updated Linux Ubuntu client installation for VU-MINECRAFT02
+
+Version:	1.19
+Date:		2021.12.14
+Notes:		Added *\.dropbox.cache\*; to the Excluded files with wildcards, noticed issues with HARRY3 after dropbox was installed
+
+Version:	1.20
+Date:		2021.12.19
+Notes:		Added section 'Server - Maintaince'
+
+Version:	1.21
+Date:		2022.01.28
+Notes:		Added section 'Client - Config - Removing directory from backup (Windows)'
+			Cleaned up document for import to GitHub
+
+Original architecture:
+----------------------
+urBackup server: 		Virtual, 1
+Implementation Date:	2017.09.09
+
+Updated Architecture -1:
+------------------------
+Urbackup server 1:		Virtual, 1
+urBackup server 2:		Physical, 1
+Build date start:		2018.09.15
+Implementation date:	2018.10.16 
+Decomission Date:		2019.04.18
+
+Updated Architecture -1:
+------------------------
+Urbackup server 1:		Virtual, 1
+urBackup server 2:		Physical, 1
+Build date start:		2018.09.15
+Implementation date:	2018.10.16 
+
+
+Server - Pre-installation tasks (Windows)
+-----------------------------------------
+
+	This is done on all servers to get it ready, pulled from section 2.1.1 of the urbackup admin guide (https://www.urbackup.org/administration_manual.html). While urBackup server can be place on Windows 10, going with Windows 2012, 2012R2, 2016, 2019, or 2022 will enable using deduplication to save even more space. 
+
+-CMD: fsutil.exe behavior set disable8dot3 1
+
+	This will only need to be done on format of new backup locations, not needed if moving a backup database to a new server
+
+-CMD: Format H: /FS:NTFS /L 
+-CMD: mkdir H:\data_urbackup
+
+Server - Installation (Windows)
+-------------------------------
+
+-Using Chocolatey to install; open PowerShell Admin console
+PS> choco install urbackup-server
+
+-Currently 2021.07.01, there is no maintainer for the package 'urbackup-server'
+
+Server - Config - Location of backups (Windows)
+-----------------------------------------------
+	This procedure will set location of backups.
+
+-Run urbackup Server console
+-Go to [settings] and change backup location from c:\urbackup to h:\backup_urbackup, then save
+
+Server - config - AV override
+-----------------------------
+
+-Make sure the h:\backup_urbackup is not being checked by AV software
+
+-Actual step by step directons are not in this document
+
+Server - Config - Settings for file backups
+-------------------------------------------
+	This procedure will adjust file backup settings. These settings are being done because 3.43 GB of backup takes 24.1 GB of disk space on server
+
+	This procedure will be done on all servers
+
+-Go to [settings], [Server]
+-Find "File Backups'
+-change "Interval for incremental file backups" from from 5 to 24
+-change "Interval for full file backups" from 30 to 14
+-change "Maximal number of incremental file backups:" from 50 or 100 to 2
+-change "Minimal number of incremental file backups:" from 40 to 1
+-change "Maximal number of full file backups:" from 5 or 10 to 2
+-change Excluded files (with wildcards): */.cache*;*\.dropbox.cache\*;C:\Users\:\OneDrive;*\HarddiskVolumeShadowCopy*\*;c:\Users\Ellen\Desktop*\*;*.ispw;*.ost;*/dosdevices/*;*.ispw;*\Chrome\User*Data\Profile*\Cache\*;*\Mozilla\Firefox\Profiles\*.default-release\cache2\entries\*
+-Click [save]
+
+Server - Config - stopping image backups
+----------------------------------------
+	This procedure will stop image backups.
+
+	This procedure will be done on all servers.
+
+-Go to [settings], [Server]
+-Find "Do not do Image Backups" and make it checked
+-Click [save]
+
+Server - Config - creation of user admin
+----------------------------------------
+	This procedure will create a user admin and assign a password
+
+-Go to [settings], [Users]
+-Click "Create User"
+-Enter a password for "Password" and "Repeat Password", then click [Create]
+
+Server - Config - Limiting Speed
+--------------------------------
+	This change was put in place in 2019.05.28 because it woul saturate PowerLink connections and affect computers like Malachite-IV and pop-os,  put a hard cap of 5Mbit during the day, and 60 on evenings and weekends.  
+
+-Go to [Settings], [Server]
+-Find "Total Max Backup Speed for Local network" and add the value: 60;7.5@Mon-Fri/8-18
+-Click Save
+-No need to restart
+
+Server - Config - Advanced settings
+-----------------------------------
+	This change was put in in 2020.03.26 becasue linux client was failing becuase files would change between start and end of backup
+
+-Go to [Settings], [Advanced]
+-Find "Do not fail backups in case of hash mismatches or read errors" and make sure it is checked.
+-Click Save
+
+Server - Config - Installation of server key
+--------------------------------------------
+
+	This process needs to be done with the 2nd server.  Comunication happens between a client and server using a key.  Each server installation generates a new key, and clients that have not been configured with any server will find the server, copy the key down then only talk with that server
+	If the server key is copied from the initial server to any subsuquent server, All clients from original server will also fully communicate with the new server
+
+ADMIN-CMD: services.msc
+-Stop the service "UrBackup Windows Server"
+
+Files involved: 
+server_ident.key
+server_ident.priv
+server_ident.pub
+server_ident_ecdsa409k1.priv
+server_ident_eddsa409k1.pub
+server_token.key
+ 
+ADMIN-CMD: Copy the original files to c:\program files\UrbackupServer\urbackup to c:\program files\UrbackupServer\urbackup\keys_ori
+ADMIN-CMD: Copy the files from the original server to the new server
+-Start the service "UrBackup Windows Server"
+
+Sever - Maintaince (Windows)
+----------------------------
+
+	This section is to perform maintaince tasks to deal with performance issues
+
+	It was noticed on 2021.12.19, it was taking about 45 minutes to start up the server.  When looking at the performance of the server, was seeing lots of disk usage on C: drive, especially on the WAL files, which are the databases.  Did a test defrag of the database using contig, and it worked great. server started up in less than 2 minutes
+
+Defrag of database:
+-Log on as administrator
+-Stop the urBackup server service.
+-go to c:\program files\Urbackup Server\urbackup
+-CMD: contig
+-This will defrag all of the files, once done startup the service again, should be much shorter.
+
+OLD- Server - Update
+--------------------
+	Servers are installed manually, so upgrad will be manual
+-Download latest server version from urbackup.org
+-Install the server.
+-go to services and make sure the urBackup service restarts, it might take up to 5 minutes
+-Test by going to the web page and verify that it is up and running
+
+Client - Installation (Windows)
+-------------------------------
+-Using Chocolatey to install; open PowerShell Admin console
+
+PS> choco instal urbackup-client
+
+-**NOTE**:  will only create icon under administrator profile
+-**NOTE**:  chocolatey version will not have any task icon
+
+Client - Re-Installation (Windows)
+----------------------------------
+Only done if client breaks
+
+-Open command prompt
+-Go to C:\Program files\UrBackup
+CMD: UrBackupClient_cmd.exe list-backupdirs
+
+-This will show you what is alredy being backed up, save it to re-configure backups
+
+PS> choco uninstall urbackup-client
+PS> choco instal urbackup-client
+
+-Go to client config and re-insert backup dirs from the list you have at the beginning of this section.
+
+Client - Installation (Linux)
+------------------------------
+	This has been tested with Ubuntu 
+
+This if for Centos / RHEL only
+
+SH> sudo firewall-cmd --zone=public --add-port=35621/tcp --permanent
+SH> sudo firewall-cmd --zone=public --add-port=35622/udp --permanent
+SH> sudo firewall-cmd --zone=public --add-port=35623/tcp --permanent
+SH> sudo firewall-cmd --reload
+
+
+SH> sudo bash
+#SH> TF=`mktemp` && wget "https://hndl.urbackup.org/Client/latest/UrBackup%20Client%20Linux%202.4.10.sh" -O $TF && sh $TF; rm $TF
+SH> TF=$(mktemp) && wget "https://hndl.urbackup.org/Client/2.4.11/UrBackup%20Client%20Linux%202.4.11.sh" -O $TF && sudo sh $TF; rm -f $TF
+
+-There will be a question on which method to use for image backup, choose (4) for none.
+-An upgrade will not ask the previous question
+
+Client - Config - Move to new server:
+-------------------------------------
+	This procedure will move a client to a new server with all settings, more robust then re-install.
+
+-Stop urServer service on former server
+-Make sure urServer service is running on new server
+-Stop urBackup client
+-Rename server_idents.txt to server_idents_old.txt
+-Rename session_idents.txt to session_idents_old.txt
+-Start urBackup_client
+
+
+Client - Function - Test connectivity (Linux)
+---------------------------------------------
+
+- This will check to see of client is seeing and talking to server.
+SH> urbackupclientctl status
+
+Client - Config - Adding directory to backup (Windows)
+------------------------------------------------------
+
+	This procedure will add a new directory for backing up using urBackup
+
+-Open Administrative command prompt
+-Go to C:\Program files\UrBackup
+
+CMD: UrBackupClient_cmd.exe add-backupdir -d <directory to backup> -n <Name of backup>
+
+Client - Function - Listing backup directories (Windows)
+--------------------------------------------------------
+
+	This procedure will show which directories are being backed up
+
+-Open Administrative command prompt
+-Go to C:\Program files\UrBackup
+
+-CMD: UrBackupClient_cmd.exe list-backupdirs
+
+Client - Config - Removing directory from backup (Windows)
+----------------------------------------------------------
+
+	This procedure will remove an already existing directory from the backup
+	
+-Open Administrative command prompt
+-Go to C:\Program files\UrBackup
+
+CMD: UrBackupClient_cmd.exe remove -backupdir -n <Name of backup>
+
+Client - Config - Adding directory to backup (Linux)
+----------------------------------------------------
+
+	This procedure will add a new directory for backing up using urBackup
+
+SH> sudo bash
+-Go to /usr/local/bin
+SH> ./urbackupclientctl add-backupdir -d <directory to backup> -n <Name of backup>
+
+Client - Function - Listing backup directories (Linux)
+------------------------------------------------------
+
+	This procedure will show which directories are being backed up
+
+SH> sudo bash
+-Go to /usr/local/bin
+SH> ./urbackupclientctl list-backupdirs
+
+
+Client - Function - Manually starting backup (Window)
+-----------------------------------------------------
+
+	This procedure will start a manual backup.
+
+-Open Administrative command prompt
+-Go to C:\Program files\UrBackup
+-CMD: UrBackupClient_cmd.exe start -i -l 
+--Will do incramental file backup 
+-CMD: UrBackupClient_cmd.exe start -f -l 
+--Will do full file backup
+-Check your urBackup administrative console to see the backup process
+
+Client - Function - Manually starting backup (Linux)
+----------------------------------------------------
+
+	This procedure will start a manual backup.
+
+SH> sudo bash
+-Go to /usr/local/bin
+SH> ./urbackupclientctl start -i
+--Will do incramental file backup 
+SH> ./urbackupclientctl start -f
+--Will do full file backup
+-Check your urBackup administrative console to see the backup process
+
+Server - Config - Adding https access to urBackup Server using stunnel
+---------------------------------------------------------------------
+	This procedure will enable HTTPS communication to the administrative console.  UrBackup has no SSL certificate and communicates on port 55414.  This procedure will add HTTPS, and also obsfuciate the request.  At this time I do not know of how to shut off the urBackup server on talking on HTTP:55414, but at least this is an option.
+
+1) Install stunnel
+
+PS> choco install stunnel
+
+2) Create certificate
+
+-Go go Linux machine and enter the following commmands
+SH> openssl req -new -x509 -days 365 -nodes -config -out stunnel.pem -keyout stunnel.pem
+
+-For the following questions, answer with the following answers:
+--Country: US
+--State: NJ
+--Locality: [blank]
+--Organizational Name: ** INFO IN KEEPASS **
+--OU: [blank]
+--common name (FQDN): ** INFO IN KEEPASS **
+SH> openssl gendh 2048 >> stunnel.pem
+
+3) Move certificate to urBackup Server
+
+-Use FileZilla / WinSCP to get file to C:\Program files (x86)\stunnel\config
+
+4) Modify config file
+
+- Go to C:\Program files (x86)\stunnel\config and work with config files
+
+-backup stunnel.conf to stunnel_ori.conf
+-Edit stunnel.conf
+--Remove all uncommented lines
+--Add the following lines:
+
+; TLS front-end to a web server
+[https]
+accept = 443
+connect = 55414
+cert = stunnel.pem
+; "TIMEOUTclose = 0" is a workaround for a design flaw in Microsoft SChannel
+; Microsoft implementations do not use TLS close-notify alert and thus they
+; are vulnerable to truncation attacks
+TIMEOUTclose = 0
+
+-save file
+
+5) start stunnel
+
+-Go to C:\Program files (x86)\stunnel\bin and run stunnel.exe as administrator
+
+6) Testing
+
+-From machine other than urBackup server go to https://<IP ADDRESS> or https://<SHORTNAME>.  Should see errors, but connection should stay as https and thus secure between client and server. 
+
+Client - Issues
+---------------
+
+-With the senstitive nature of repairs and issues, all of these will not be in the document.
+
+
+Reference:
+----------
+https://www.urbackup.org/administration_manual.html#x1-50002.1.1
+https://support.microsoft.com/en-us/help/121007/how-to-disable-8-3-file-name-creation-on-ntfs-partitions
+
+Reference (Linux Installation):
+-------------------------------
+https://www.urbackup.org/download.html#linux_all_binary
+
+Reference (stunnel)
+-------------------
+https://forums.urbackup.org/t/windows-ssl-tip-no-apache-no-iis-necessary/4216/9
+https://www.stunnel.org/howto.html
+
+Reference (backup speed)
+------------------------
+https://www.urbackup.org/administration_manual.html#x1-610008.3.1
+
+Reference (client will not backup)
+----------------------------------
+https://www.urbackup.org/faq.html#ident_err
+
+Reference (Server database issue)
+---------------------------------
+https://forums.urbackup.org/t/error-database-damage-or-there-is-not-enough-free-space/7728
+
+Reference (firewall changes for CentOS / RHEL)
+----------------------------------------------
+https://mangolassi.it/topic/11431/installing-urbackup-on-centos-7
+https://www.urbackup.org/administration_manual.html#x1-9000010.3

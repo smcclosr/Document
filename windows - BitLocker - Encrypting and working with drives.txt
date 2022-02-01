@@ -1,0 +1,121 @@
+windows - BitLocker - Encrypting and working with drives
+========================================================
+
+Version:	1.0
+Notes:		Initial build for Windows 2012
+Date:		2016.03.21
+
+Version:	1.1
+Notes:		Update for Windows 10 - Encryption of Boot drive
+Date:		2018.12.21
+
+Version:	1.2
+Notes:		Updated for adding pin and BitLocker with TPM
+Date:		2019.01.04
+
+Version:	1.3
+Notes:		Updated Gpedit for Windows build update
+
+Version:	1.4
+Notes:		Update because drive in x220 plate would not encrypt, looking for resolutions
+
+Install with Powershell:
+------------------------
+Install-WindowsFeature BitLocker -IncludeAllSubFeature -IncludeManagementTools
+
+reboot
+
+Verify is installed in PS:
+--------------------------
+get-windowsfeature | where installed
+
+check status (2012 & Win 10)
+------------
+manage-bde -status
+
+check status with powershell (2012 & Win 10)
+----------------------------
+get-BitLockerVolume
+
+unlock with powershell:
+-----------------------
+$SecureString = ConvertTo-SecureString "fjuksAS1337" -AsPlainText -Force
+Unlock-BitLocker -MountPoint "E:" -Password $SecureString
+
+-replace "fjuksAS1337" with actual password
+-repalce "E:" with actual drive letter
+
+unlock with powershell that prompts for password:
+-------------------------------------------------
+$SecureString = Read-Host 'Enter Bitlocker Password!' -AsSecureString
+
+Unlock-Bitlocker -MountPoint "Y:" -Password $SecureString
+Unlock-Bitlocker -MountPoint "Z:" -Password $SecureString
+
+-Replace "Y:" and "Z:" with actual drive letters
+
+Lock with powershell:
+---------------------
+Unlock-BitLocker -MountPoint "E:"
+
+-repalce "E:" with actual drive letter
+
+Change of Group Policies (Windows 10)
+-------------------------------------
+
+-run gpedit.msc as an administrator
+Computer Configuration\Administrative Templates\Windows Components\Bitlocker Drive Encryption\
+
+Choose Drive encryption method and cipher strength (Windows 10 [Version 1511])
+-Enabled
+-OS Drives: AES-CBC 256-bit
+-Fixed Data: AES-CBC 256-bit
+-Removable: AES-CBC 256-bit
+
+Computer Configuration\Administrative Templates\Windows Components\Bitlocker Drive Encryption\
+
+Chose drive encryption Method and cipher strength (Windows 10 [Version 1511] and later)
+-Enabled
+-Select the encryption method for Operating system Drives: XTS-AES 256-bit
+-Select the encryption method for fixed data Drives: XTS-AES 256-bit
+-Select the encryption method for removable data Drives: AES-CBC 256-bit
+
+Computer Configuration\Administrative Templates\Windows Components\Bitlocker Drive Encryption\Bitlocker Drive Encryption\Operating System Drives
+
+Require additional Authentication at startup
+-enabled
+-Allow BitLocker with a compatible TPM (requires a password or startup key on a USB flash drive) [checked]
+-Settings with for a computer with a TPM
+=Settings do not matter
+
+Enable Pre-Boot Pin
+-------------------
+-Before doing this, make sure drive is already encrypted
+-Open Group Policy, go to Computer Configuration > Administrative Templates > Windows Components > BitLocker Drive Encryption > Operating System Drives
+-Go to "Require Additional Authentication at Startup"
+--change from not configured to enabled
+--change "Allow Startup PIN with TPM" to "Require Startup PIN with TPM"
+-ADMIN_CMD: manage-bde -protectors -add c: -TPMAndPIN
+-Enter PIN and confirm, work is done
+
+Issue 01: Cannot encrypt D: drive
+---------------------------------
+Date: 2021.01.01
+
+-Added H: drive for urBackup and want it to also be encrypted.  Cannot, get error "The Group Policy setting for BitLocker starutp otions are in conflict and cannot be applied.  Contact your system administrator for more information"
+
+-researched problem.
+-Try 1: removing BitLocker on C: to change settings and try again.
+
+References:
+-----------
+https://tecnet.microsoft.com/en-us/library/jj612864.aspx
+https://msdn.microsoft.com/en-us/library/ee662309.aspx
+https://technet.microsoft.com/en-us/library/jj647767.aspx
+
+https://technet.microsoft.com/en-us/library/jj649833%28v=wps.630%29.aspx
+http://stackoverflow.com/questions/15324758/bitlocker-script-to-unlock-drive
+
+References Pre-boot Pin
+-----------------------
+https://www.howtogeek.com/262720/how-to-enable-a-pre-boot-bitlocker-pin-on-windows/

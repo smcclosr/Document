@@ -1,0 +1,31 @@
+Network - TailScale
+-------------------
+
+Version:	1.00
+Date:		2022.001.31
+Notes:		Initial build
+
+Notes:
+------
+
+	Tailscale is a tool that sets up a local VPN of only my computers. Once up, it provides a new 100.x.x.x IP address for each machine that the software is installed onto, and can only be accessed with other machines in my group
+	
+CLIENT - Windows Install
+------------------------
+
+PS > choco install tailscale
+
+-Authenticate with Google account
+
+CLIENT - Ubuntu install
+-----------------------
+
+-SSH to server
+SH> curl -fsSL https://tailscale.com/install.sh | sh
+SH> sudo tailscale up
+
+-Will provide a web address. go to this addres and authenticate with Google email
+
+Reference:
+----------
+https://tailscale.com/download/linux

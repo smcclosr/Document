@@ -23,6 +23,10 @@ Version:	2.04
 Date:		2022.01.24
 Notes:		Addition about vSphere tools for Windows
 
+Version:	2.05
+Date:		2022.01.31
+Notes:		Detailed issued with BitLocker on Guests
+
 
 Current Hardware:
 -----------------
@@ -113,9 +117,24 @@ Current Issue - 6.7 U3 will not automatically boot with UEFI
 
 WORKAROUND: While booting up, choose F12, then the instlaled_hyervisor
 
+ISSUE - Windows Harddrives show up as removable disks
+-----------------------------------------------------
+Date:  		2022.02.01
+Status: 	Closed
+
+
+	While trying to enable BitLocker on Windows 10 guests, could not enable on additional drives becasue showing up as removable.
+	
+	Placing resolution in 'Windows - BitLocker - Encrypting and working with drives' Document
+
 Reference - boot issues:
 ------------------------
 https://communities.vmware.com/t5/ESXi-Discussions/esxi-cannot-boot-after-updating-to-6-7-u3-how-to-fix-it/td-p/2217397/page/2
 
 Reference - Disable NICS
 ------------------------
+https://kb.vmware.com/s/article/2006074
+
+Reference - Remove Hot Add:
+---------------------------
+https://communities.vmware.com/t5/VMware-Workstation-Pro/Workstation-10-Windows-quot-Safely-Remove-quot-Gone-Wild/m-p/372610

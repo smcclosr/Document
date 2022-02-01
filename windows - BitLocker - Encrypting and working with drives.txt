@@ -18,24 +18,36 @@ Notes:		Updated Gpedit for Windows build update
 
 Version:	1.4
 Notes:		Update because drive in x220 plate would not encrypt, looking for resolutions
+			Cleaned up for import to GitHub
+Date:		2022.02.01
 
 Install with Powershell:
 ------------------------
-Install-WindowsFeature BitLocker -IncludeAllSubFeature -IncludeManagementTools
+
+-Open Powershell with administrative privlidges
+PS> Install-WindowsFeature BitLocker -IncludeAllSubFeature -IncludeManagementTools
 
 reboot
 
-Verify is installed in PS:
---------------------------
-get-windowsfeature | where installed
+Verify is installed in PS (Windows 2012+):
+------------------------------------------
+
+-Open PowerShell
+PS> get-windowsfeature | where installed
 
 check status (2012 & Win 10)
-------------
-manage-bde -status
+----------------------------
+
+	This command will give you the current status of encryption on drive, and if encrypting, the % done.
+	
+-Open Administrative Command prompt
+CMD:> manage-bde -status
 
 check status with powershell (2012 & Win 10)
-----------------------------
-get-BitLockerVolume
+--------------------------------------------
+
+-Open Powershell with administrativie prvlidges.
+PS> get-BitLockerVolume
 
 unlock with powershell:
 -----------------------
@@ -86,7 +98,7 @@ Require additional Authentication at startup
 -enabled
 -Allow BitLocker with a compatible TPM (requires a password or startup key on a USB flash drive) [checked]
 -Settings with for a computer with a TPM
-=Settings do not matter
+-Settings do not matter
 
 Enable Pre-Boot Pin
 -------------------
@@ -98,14 +110,25 @@ Enable Pre-Boot Pin
 -ADMIN_CMD: manage-bde -protectors -add c: -TPMAndPIN
 -Enter PIN and confirm, work is done
 
-Issue 01: Cannot encrypt D: drive
----------------------------------
+Disable VMware hot Add so non system drives can be encrypted
+------------------------------------------------------------
+
+-Power off the VM
+-Download the .VMX file
+-Add the following line to the VMX:
+devices.hotplug = "FALSE"
+
+Issue 01: Cannot encrypt Non-OS drive with VMware guests
+--------------------------------------------------------
 Date: 2021.01.01
+Issue: closed
 
 -Added H: drive for urBackup and want it to also be encrypted.  Cannot, get error "The Group Policy setting for BitLocker starutp otions are in conflict and cannot be applied.  Contact your system administrator for more information"
 
 -researched problem.
 -Try 1: removing BitLocker on C: to change settings and try again.
+
+-Resolution: Need to disable Hot add by adjusting the .VMX file. Resolution is for VMWare Workstation 5.5, but still works for ESXi 6.7
 
 References:
 -----------
@@ -119,3 +142,8 @@ http://stackoverflow.com/questions/15324758/bitlocker-script-to-unlock-drive
 References Pre-boot Pin
 -----------------------
 https://www.howtogeek.com/262720/how-to-enable-a-pre-boot-bitlocker-pin-on-windows/
+
+Reference - Disable Hot Add vsphere
+-----------------------------------
+https://communities.vmware.com/t5/VMware-Workstation-Pro/Workstation-10-Windows-quot-Safely-Remove-quot-Gone-Wild/m-p/372610
+https://kb.vmware.com/s/article/1012225

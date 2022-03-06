@@ -1,0 +1,49 @@
+Windows - Space Cleanup Procedures
+----------------------------------
+
+Version:	1.00
+Date:		2011.02.09
+Notes:		Initial Build
+		Section 'Cleaning up the Windows.EDB file'
+
+Version:	1.01
+Date:		2022.03.06
+Notes		Section 'Cleanup of C:\Windows\Servicing\LCU'
+		Cleaned up for import into GitHub
+
+
+Cleanup the Windows.EDB file
+----------------------------
+	I have been looking at windows and noticed that the file windows.edb at the location  F:\Documents and Settings\All Users\Application Data\Microsoft\Search\Data\Applications\Windows was getting very large, about 250 MB, and the rest of the directory was also about another 250 MB.
+
+	Doing some searches it looks like most info is about how to compress this file and also forensic web sites on tools that can read this file and use it for forensic purposes.
+
+	I am looking to clean it and from what I have seen it is a database controlled by the windows search engine 4.0 that is added to Windows 2003.
+
+	So I looked at services and found Windows search.  Stopping the service unlocks the file. So next I just restarted and noticed that it did update the file, but no change in size.
+
+	Then I stopped the service 'Windows Search' renamed Windows.edb and restarted the service.
+
+	Without any fuss, the sytem itself delete all the files and started to rebuild the Windos search.  That action decreased the size of the directory \Documents and Settings\All Users\Application Data\Microsoft\Search\Data\Applications\Windows from 500 MB to 46 MB
+
+Cleanup of C:\Windows\Servicing\LCU
+-----------------------------------
+
+	This section was build becasue a Windows 10 sytem had a very large LCU of about 2.1 GB, and did not want to extend partiation in VM. After done, it removed 1.6 GB of data. This procedure was built for Windows 10.
+
+-Run 'Disk Cleanup'
+-Choose the C: drive
+-click 'Cleanup System files', enter an administrator password
+-Choose the C: drive, again
+-Uncheck all settings except 'Windows Update Cleanup'
+-Click 'OK' then 'Delete Files'
+-Let the program process the deletions
+
+Reference Windows.edb file:
+---------------------------
+http://jay-fva.blogspot.com/2010/07/windows-search-forensics.html
+http://www.edbsearch.com/articles/deobfuscation.html
+
+Reference C:\Windows\Servicing\LCU
+----------------------------------
+https://www.tenforums.com/general-support/154731-lcu-folder-large-but-what.html

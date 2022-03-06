@@ -83,12 +83,16 @@ Notes:		Added *\.dropbox.cache\*; to the Excluded files with wildcards, noticed 
 
 Version:	1.20
 Date:		2021.12.19
-Notes:		Added section 'Server - Maintaince'
+Notes:		Added section 'Server - Maintaince (Windows)'
 
 Version:	1.21
 Date:		2022.01.28
 Notes:		Added section 'Client - Config - Removing directory from backup (Windows)'
 			Cleaned up document for import to GitHub
+
+Version:	1.21
+Date:		2022.03.06
+Notes:		Added additional criteria for section 'Server - Maintaince (Windows)'
 
 Original architecture:
 ----------------------
@@ -223,12 +227,20 @@ Sever - Maintaince (Windows)
 	This section is to perform maintaince tasks to deal with performance issues
 
 	It was noticed on 2021.12.19, it was taking about 45 minutes to start up the server.  When looking at the performance of the server, was seeing lots of disk usage on C: drive, especially on the WAL files, which are the databases.  Did a test defrag of the database using contig, and it worked great. server started up in less than 2 minutes
+	
+	On 2022.03.06 it was noticed that drive usage was excessively high and access on files c:\Program Files\UrbackupServer\urbackup prompting refinement of this section.
 
 Defrag of database:
 -Log on as administrator
+-Verify that there are no backup jobs running
 -Stop the urBackup server service.
 -go to c:\program files\Urbackup Server\urbackup
+-Check defrag with the following command:
+-CMD: contig -a
+
+-Defrag the directory with this command:
 -CMD: contig
+
 -This will defrag all of the files, once done startup the service again, should be much shorter.
 
 OLD- Server - Update

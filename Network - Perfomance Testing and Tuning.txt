@@ -5,6 +5,10 @@ Version:	1.00
 Date:		2022.01.25
 Notes:		Initial Build
 
+Version:	1.01
+Date:		2022.02.07
+Notes:		Added notes for ESXi
+
 	This document will detail the testing and tuning of the network in order to see the limitation, and to improve performance. Currently will be using iperf3 for testing
 	
 INSTALLATION - Windows
@@ -27,7 +31,12 @@ INSTALLATION - TrueNAS
 INSTALLATION - ESXi
 -------------------
 
--Need to do
+-Download package from  http://vibsdepot.v-front.de/depot/bundles/iperf-2.0.5-1-offline_bundle.zip
+-Upload file to ESXi
+-Install with the following command:
+
+SH> esxcli software vib install -d /iperf-2.0.5-1-offline_bundle.zip –no-sig-check 
+
 
 RUNNING IPERF3 SERVER - Windows
 -------------------------------
@@ -38,7 +47,12 @@ TESTING - Extensive testing:
 ---------------------------------------------------------------------------------------------------------
 -The following format of the command will generate a heavily saturated connection and will stress it to the limit:
 
+Windows / Unix / BSD
 iperf -c 192.168.11.24 -P 16 -w 64k -l 128k -t 30
+
+ESXi
+/usr/lib/vmware/vsan/bin/iperf3 -c 192.168.13.2 -P 16 -w 64k -l 128k -t 30
+
 
 =========================================================
 ...
@@ -114,3 +128,4 @@ CMD> iperf3 -c 192.168.11.24
 Reference:
 ----------
 https://rickardnobel.se/vmxnet3-vs-e1000e-and-e1000-part-2/
+https://www.controlup.com/resources/blog/entry/iperf-on-esxi/

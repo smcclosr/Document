@@ -1,0 +1,167 @@
+Extend LVM Disk:
+
+Version:	1.01
+Date:		2015-08-06
+Notes:		Added better clarification to get partition numbers and lvm volumes
+
+Version:	1.02
+Date:		2016-10-20
+Notes:		Added better clarification to get partition numbers and lvm volumes
+
+Version:	1.03
+Date:		2020.12.16
+Notes:		Ran through instructions on the expansion of disk on VU-MINECRAFT01, still good
+
+Version:	1.04
+Date:		2022.03.17
+Notes:		updated to do a second expansion, and cleaned up for import int GitHub
+
+Expanding the VDI in Virtualbox:
+--------------------------------
+This will expand the .VDI to 16.0 GB from whatever it is, the Linux guest needs to be off
+
+C:\Program Files\Oracle\VirtualBox>VBoxManage.exe modifyhd g:\Data_Nobackup_2\VirtualBox\Chrome\Chrome.vdi --resize 16386
+
+Expanding the VMDK in VMware:
+-----------------------------
+This will expand the VMDK.
+
+-Go go GUI and expand the disk.  Common procedure, so not documenting how to do it.
+-Will need to reboot the Linux VM
+
+If you need to clean out some space:
+------------------------------------
+sudo apt-get clean
+
+Install Parted
+--------------
+sudo apt-get install parted
+
+See partition sizes:
+--------------------
+'sudo parted /dev/sda "print free"
+
+First expansion of disk with parted
+-----------------------------------
+
+	This procedure will created a new primary partition after the extended partition.
+
+First look at disk with parted
+SH> sudo parted /dev/sda
+
+Model: VMware Virtual disk (scsi)
+Disk /dev/sda: 21.6GB
+Sector size (logical/physical): 512B/512B
+Partition Table: msdos
+Disk Flags:
+
+Number  Start   End     Size    Type      File system  Flags
+ 1      1049kB  512MB   511MB   primary   ext2         boot
+ 2      513MB   17.2GB  16.7GB  extended
+ 5      513MB   17.2GB  16.7GB  logical                lvm
+ 3      17.2GB  26.8GB  9621MB  primary                lvm
+
+Expand disk from 8 to 16GB
+
+
+SH> sudo parted /dev/sda "mkpart primary 8192MB 17.2G"
+
+reboot the server, no need to change the fstab
+
+
+Second expansion of the disk with parted
+----------------------------------------
+
+	This procedure will use the parted, resizepart to extend an existing parition
+	
+	In this situation the disk was expanded from 20 GB to 25 GB.  As you can see the last partition, a primary ends at 21.5GB, and the disk is at 26.8GB
+
+SH> sudo parted print
+
+Model: VMware Virtual disk (scsi)
+Disk /dev/sda: 26.8GB
+               ------
+Sector size (logical/physical): 512B/512B
+Partition Table: msdos
+Disk Flags:
+
+Number  Start   End     Size    Type      File system  Flags
+ 1      1049kB  512MB   511MB   primary   ext2         boot
+ 2      513MB   17.2GB  16.7GB  extended
+ 5      513MB   17.2GB  16.7GB  logical                lvm
+ 3      17.2GB  21.5GB  9621MB  primary                lvm
+ 		------
+
+SH> sudo parted
+SH> (parted) reparted
+SH> Partition number? 3
+SH> End? [21.5GB] 26.8GB
+
+
+checking paritions
+------------------
+This will show the partiations, all PVS work will need to be done on the new parition.
+'sudo fdisk --list
+
+Expand the LVM with the creation of second parition
+---------------------------------------------------
+
+in this set of instructions /dev/sda3 is the new partition created, and /dev/mapper/chrome root is the VG of my root can fid that by doing more /etc/fstab
+
+'sudo pvcreate /dev/sda3
+'sudo pvdisplay /dev/sda3 
+'sudo pvs
+'sudo vgextend chrome /dev/sda3
+--replace 'chrome' with what value you get for the column VG in PVS
+'sudo pvs
+'sudo vgdisplay
+'ls /dev/mapper
+'sudo lvextend -l +100%FREE /dev/mapper/chrome-root
+--replace '/dev/mapper/chrome-root' with what value you get from previous ls command
+'sudo resize2fs /dev/mapper/chrome-root
+--replace '/dev/mapper/chrome-root' with what value you get from previous ls command
+
+** /dev/sda3 will be replaced with actual partion number listed in parted
+** /dev/mapper/chrome-root will br replaced with volume given from the command 'sudo pvs
+--will show the physical virtual paritions
+'sudo lvs
+--will show the logical virtual paritions
+df
+--you should see the Use column for the volume group go down, meaning more free space
+
+reboot the server
+
+
+Expand the LVM with the expansion already created second parition
+------------------------------------------------------------------
+
+in this set of instructions /dev/sda3 is the new partition created, and /dev/mapper/chrome root is the VG of my root can fid that by doing more /etc/fstab
+
+SH> sudo pvresize dev/sda3
+SH> sudo lvs
+SH> sudo lvextend -l +100%FREE /dev/VU-MINECRAFT01-vg/root
+SH> sudo resize2fs /dev/VU-MINECRAFT01-vg/root
+
+or 
+
+SH> sudo ls /dev/mapper
+SH> sudo lvextend -l +100%FREE /dev/mapper/VU--MINECRAFT01--vg-root
+SH> sudo resize2fs /dev/mapper/VU--MINECRAFT01--vg-root
+
+df
+--you should see the Use column for the volume group go down, meaning more free space
+
+reboot the server
+
+
+Reference - Expanding VDI:
+--------------------------
+http://www.webdesignblog.asia/software/linux-software/resize-virtualbox-disk-image-manipulate-vdi/#sthash.tIVIMYtM.dpbs
+
+Reference - cleaning out apt cache:
+-----------------------------------
+http://tombuntu.com/index.php/2008/08/01/free-disk-space-from-apts-cache/
+http://blog.campodoro.org/?p=36
+http://serverfault.com/questions/38542/ubuntu-resize-the-root-lvm2-partition
+https://blog.ndk.name/extend-vmware-virtual-machine-lvm-disk/
+https://kb.vander.host/operating-systems/how-to-resize-an-ubuntu-18-04-lvm-disk/

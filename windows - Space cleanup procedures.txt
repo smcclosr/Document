@@ -8,9 +8,13 @@ Notes:		Initial Build
 
 Version:	1.01
 Date:		2022.03.06
-Notes		Section 'Cleanup of C:\Windows\Servicing\LCU'
-		Cleaned up for import into GitHub
+Notes		Added section 'Cleanup of C:\Windows\Servicing\LCU'
+			Cleaned up for import into GitHub
 
+Version:	1.02
+Date:		2022.03.26
+Notes:		Added section 'Cleanup of the WinSxS folder'
+			Updated section 'Cleanup of C:\Windows\Servicing\LCU'
 
 Cleanup the Windows.EDB file
 ----------------------------
@@ -36,9 +40,20 @@ Cleanup of C:\Windows\Servicing\LCU
 -click 'Cleanup System files', enter an administrator password
 -Choose the C: drive, again
 -Uncheck all settings except 'Windows Update Cleanup'
+-You could also check 'Temporary files' but would only suggest using that option on a freshly rebooted system.
 -Click 'OK' then 'Delete Files'
 -Let the program process the deletions
 
+Cleanup of the WinSxS folder:
+-----------------------------
+-Determins the actual size of the WinSxS folder:
+ADMIN-CMD> Dism.exe /Online /Cleanup-Image /AnalyzeComponentStore
+
+-Cleanup of the WinSxS folder
+ADMIN-CMD> Dism.exe /online /Cleanup-Image /StartComponentCleanup
+
+-More Severe cleanup (Not tested, read further before using):
+ADMIN-CMD> Dism.exe /online /Cleanup-Image /StartComponentCleanup /ResetBase
 Reference Windows.edb file:
 ---------------------------
 http://jay-fva.blogspot.com/2010/07/windows-search-forensics.html
@@ -47,3 +62,8 @@ http://www.edbsearch.com/articles/deobfuscation.html
 Reference C:\Windows\Servicing\LCU
 ----------------------------------
 https://www.tenforums.com/general-support/154731-lcu-folder-large-but-what.html
+
+Reference for Cleanup of the WinSxS folder:
+-------------------------------------------
+https://docs.microsoft.com/en-us/windows-hardware/manufacture/desktop/determine-the-actual-size-of-the-winsxs-folder?view=windows-11
+https://docs.microsoft.com/en-us/windows-hardware/manufacture/desktop/clean-up-the-winsxs-folder?view=windows-11

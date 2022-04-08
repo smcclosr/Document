@@ -1,0 +1,33 @@
+Windows-APP-GOG
+---------------
+
+Version:	1.00
+Date:		2022.04.08
+Notes:		Initial version, OK for GIT
+
+Installation:
+-------------
+
+PS> choco install goggalaxy
+
+-After installation, log into app
+
+Issue - Starting APP:
+---------------------
+
+-Saw this error the first time started app:
+
+Error: connection to communication service was lost and could not be restored! gog galaxy will now shutdown
+
+-Did some research and this eror happens when running GOG through a RDP Session.  Tested GOG on console, and error did not happen.
+-Thought it might be a pi-hole issue, so looked at logs and the following sites were being blocked:
+
+	insights-collector.gog.com
+	heartbeat.dm.origin.com
+
+-Whitelisted them, but did not resolve issue.  Then did search that revealed the RDP issue.
+-Left them in for the time being because they didn't hurt anything
+
+Reference - Issue - Starting App:
+---------------------------------
+https://www.gog.com/forum/general/connect_to_gog_galaxy_communication_service_was_lost_and_could_not_be_restored

@@ -94,6 +94,11 @@ Version:	1.21
 Date:		2022.03.06
 Notes:		Added additional criteria for section 'Server - Maintaince (Windows)'
 
+Version:	1.22
+Date:		2022.04.15
+Notes:		Installation of client on Windows 11 system using Chocolatey did not create Firewall Rule correctly , needed to be updated.
+
+
 Original architecture:
 ----------------------
 urBackup server: 		Virtual, 1
@@ -447,6 +452,15 @@ Client - Issues
 
 -With the senstitive nature of repairs and issues, all of these will not be in the document.
 
+Client - Issue - Firewall rule needs update:
+--------------------------------------------
+	This resolution was needed when the urBackup client was installed via chocolatey onto Windows 11 system.  Not sure if fix will be permanent, Looks like firewall rule only selected to be applied to Public, also  needs to be on private
+	
+	-Go to Windows Defender Firewall.
+	-Select "Inbound Rules..."
+	-Find rule "UrBackupClientBackend", and edit it
+	-Go to "Advanced Tab", Check Private, then OK
+	-Retest urBackup Client
 
 Reference:
 ----------

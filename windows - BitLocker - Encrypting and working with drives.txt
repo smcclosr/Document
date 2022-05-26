@@ -22,7 +22,7 @@ Notes:		Update because drive in x220 plate would not encrypt, looking for resolu
 Date:		2022.02.01
 
 Version:	1.5
-Notes:		Update for Windows 11 enterprise
+Notes:		Update for Windows 11 enterprise, cleanded up document
 Date:		2022.05.26
 
 Install with Powershell:
@@ -45,45 +45,14 @@ Verify is installed (W10 & W11)
 -Open Administrative PowerShell
 get-windowsoptionalfeature -online | where{$_.State -eq "Enabled"}
 
-check status (2012 & Win 10)
-----------------------------
-
-	This command will give you the current status of encryption on drive, and if encrypting, the % done.
-	
--Open Administrative Command prompt
-CMD:> manage-bde -status
-
-check status with powershell (2012 & Win 10)
---------------------------------------------
-
--Open Powershell with administrativie prvlidges.
-PS> get-BitLockerVolume
-
-unlock with powershell:
------------------------
-$SecureString = ConvertTo-SecureString "fjuksAS1337" -AsPlainText -Force
-Unlock-BitLocker -MountPoint "E:" -Password $SecureString
-
--replace "fjuksAS1337" with actual password
--repalce "E:" with actual drive letter
-
-unlock with powershell that prompts for password:
--------------------------------------------------
-$SecureString = Read-Host 'Enter Bitlocker Password!' -AsSecureString
-
-Unlock-Bitlocker -MountPoint "Y:" -Password $SecureString
-Unlock-Bitlocker -MountPoint "Z:" -Password $SecureString
-
--Replace "Y:" and "Z:" with actual drive letters
-
-Lock with powershell:
----------------------
-Unlock-BitLocker -MountPoint "E:"
-
--repalce "E:" with actual drive letter
+-Windows 11 Enterprise should have already installed and ative.
+-Windows 10 Pro Needs to be installed
+-Windows 10 Home canot use BitLocker
 
 Change of Group Policies (Windows 10 & Windows 11)
 --------------------------------------------------
+
+This needs to be done before any encryption.  It will enable the encryption and will set encryption bits because this cannot be selected during the encryption process
 
 -run gpedit.msc as an administrator
 
@@ -116,6 +85,48 @@ Require additional Authentication at startup
 -Configure TPM Startup key:				Allow Startup key with TPM
 -Configure TPM Startup key and PIN:		Allow Startup key and PIN with TPM
 
+Encrypting Drive:
+-----------------
+
+-Go to Control Panel, select BitLocker
+-Choose to encrypt drive, follow prompts
+
+check status (2012, Win 10 & Win 11):
+-------------------------------------
+
+	This command will give you the current status of encryption on drive, and if encrypting, the % done.
+	
+-Open Administrative Command prompt
+CMD:> manage-bde -status
+
+check status with powershell (2012, Win 10, & Win 11):
+------------------------------------------------------
+
+-Open Powershell with administrativie prvlidges.
+PS> get-BitLockerVolume
+
+Task - unlock with powershell:
+------------------------------
+$SecureString = ConvertTo-SecureString "fjuksAS1337" -AsPlainText -Force
+Unlock-BitLocker -MountPoint "E:" -Password $SecureString
+
+-replace "fjuksAS1337" with actual password
+-repalce "E:" with actual drive letter
+
+Task - unlock with powershell that prompts for password:
+--------------------------------------------------------
+$SecureString = Read-Host 'Enter Bitlocker Password!' -AsSecureString
+
+Unlock-Bitlocker -MountPoint "Y:" -Password $SecureString
+Unlock-Bitlocker -MountPoint "Z:" -Password $SecureString
+
+-Replace "Y:" and "Z:" with actual drive letters
+
+Task - Lock with powershell:
+----------------------------
+Unlock-BitLocker -MountPoint "E:"
+
+-repalce "E:" with actual drive letter
 
 Enable Pre-Boot Pin
 -------------------

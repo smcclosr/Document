@@ -21,6 +21,10 @@ Notes:		Update because drive in x220 plate would not encrypt, looking for resolu
 			Cleaned up for import to GitHub
 Date:		2022.02.01
 
+Version:	1.5
+Notes:		Update for Windows 11 enterprise
+Date:		2022.05.26
+
 Install with Powershell:
 ------------------------
 
@@ -32,8 +36,14 @@ reboot
 Verify is installed in PS (Windows 2012+):
 ------------------------------------------
 
--Open PowerShell
+-Open Administrative PowerShell
 PS> get-windowsfeature | where installed
+
+Verify is installed (W10 & W11)
+-------------------------------
+
+-Open Administrative PowerShell
+get-windowsoptionalfeature -online | where{$_.State -eq "Enabled"}
 
 check status (2012 & Win 10)
 ----------------------------
@@ -72,20 +82,15 @@ Unlock-BitLocker -MountPoint "E:"
 
 -repalce "E:" with actual drive letter
 
-Change of Group Policies (Windows 10)
--------------------------------------
+Change of Group Policies (Windows 10 & Windows 11)
+--------------------------------------------------
 
 -run gpedit.msc as an administrator
-Computer Configuration\Administrative Templates\Windows Components\Bitlocker Drive Encryption\
-
-Choose Drive encryption method and cipher strength (Windows 10 [Version 1511])
--Enabled
--OS Drives: AES-CBC 256-bit
--Fixed Data: AES-CBC 256-bit
--Removable: AES-CBC 256-bit
 
 Computer Configuration\Administrative Templates\Windows Components\Bitlocker Drive Encryption\
 
+Windows 10 & Windows 11:
+========================
 Chose drive encryption Method and cipher strength (Windows 10 [Version 1511] and later)
 -Enabled
 -Select the encryption method for Operating system Drives: XTS-AES 256-bit
@@ -94,11 +99,23 @@ Chose drive encryption Method and cipher strength (Windows 10 [Version 1511] and
 
 Computer Configuration\Administrative Templates\Windows Components\Bitlocker Drive Encryption\Bitlocker Drive Encryption\Operating System Drives
 
+Windows 10:
+===========
 Require additional Authentication at startup
 -enabled
 -Allow BitLocker with a compatible TPM (requires a password or startup key on a USB flash drive) [checked]
 -Settings with for a computer with a TPM
 -Settings do not matter
+
+Windows 11:
+===========
+Require additional Authentication at startup
+-enabled
+-Configure TPM Startup: 				Allow TPM
+-Configure TPM Startup PIN:				Allow startup PIN with TPM
+-Configure TPM Startup key:				Allow Startup key with TPM
+-Configure TPM Startup key and PIN:		Allow Startup key and PIN with TPM
+
 
 Enable Pre-Boot Pin
 -------------------

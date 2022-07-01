@@ -106,8 +106,8 @@ CONFIG - Creating your own blacklist to be an adlist
 -add or edit the file
 -save and exit
 
------------------------------
 CONFIG  - Adding new Adlists:
+-----------------------------
 
 -Go to WebGui
 -Select [Group Management] -> [Adlists]

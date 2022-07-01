@@ -1,0 +1,72 @@
+Linux-CENTOS-Common_Commands
+----------------------------
+
+Version:	1.00
+Date:		2022.07.01
+Notes:		Initial Build
+		Added Section: Update CentOS 8 to CentOS 8 Stream
+		Added Section: Web Console - Enable
+		Added Section: Web Console - Access
+		Added Section: Disable SELinux
+README:
+-------
+	This document will detail internal procedures for things that are common or repeatable and used by multiple documents.
+
+Update CentOS 8 to CentOS 8 Stream
+----------------------------------
+-CentOS 8 went EOL, in order to continue using it, but convert to stream version, This it pertinent to all installations.
+
+
+cd /etc/yum.repos.d/
+sudo sed -i 's/mirrorlist/#mirrorlist/g' /etc/yum.repos.d/CentOS-*
+sudo sed -i 's|#baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|g' /etc/yum.repos.d/CentOS-*
+sudo dnf install centos-release-stream -y --allowerasing
+sudo dnf distro-sync
+-reboot
+
+more /etc/redhat-release
+-should be CentOS Stream release 8 
+
+#sudo dnf --disablerepo '*' --enablerepo=extras swap centos-linux-repos centos-stream-repos
+#sudo dnf distro-sync
+
+Web Console - Enable:
+---------------------
+-This is not necessary, but makes it a lot easier to manage a CentOS system, not specific to osTicket
+
+sudo dnf makecache
+sudo dnf install cockpit
+sudo systemctl status cockpit.socket
+sudo systemctl start cockpit.socket
+sudo systemctl enable cockpit.socket
+
+Web Console - Access:
+---------------------
+
+-https://ipaddress:9090 to manage
+
+Disable SELinux:
+----------------
+
+sudo nano /etc/selinux/config
+-Find:
+SELINUX=targeted
+-change to then save and then reboot
+# SELINUX=permissive
+SELINUX=disabled
+
+Reference - CentOS standard to Stream
+-------------------------------------
+https://techglimpse.com/failed-metadata-repo-appstream-centos-8/
+https://techglimpse.com/convert-centos8-linux-centosstream/
+https://www.logicweb.com/knowledgebase/linux/fix-error-failed-to-download-metadata-for-repo-appstream-centos-8/
+
+
+Reference - Web Console
+-----------------------
+https://linuxhint.com/cockpit_web_console_centos8/
+
+Reference - selinux
+-------------------
+https://forum.osticket.com/d/83322-resolved-failed-to-connect-to-xxxx587-smtp-failed-to-connect-socket-permission-denied/3
+https://linuxize.com/post/how-to-disable-selinux-on-centos-8/

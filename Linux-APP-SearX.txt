@@ -1,0 +1,33 @@
+Linux-APP-SearX
+---------------
+
+
+Date:		2022.07.13
+Version:	1.00
+Notes:	Initial Build
+
+-This document was made because the SearxNG docker build failed twice, so going to to old school installation
+
+Platforms tested on:
+--------------------
+Tested on: Ubuntu 22.04
+
+$ cd /tmp
+$ git clone https://github.com/searx/searx searx
+$ cd searx
+
+$ sudo -H ./utils/searx.sh install all
+$ sudo -H ./utils/filtron.sh install all
+$ sudo -H ./utils/morty.sh install all
+
+$ sudo -H ./utils/filtron.sh apache install
+$ sudo -H ./utils/morty.sh apache install
+
+Testing to see if Apache is there and configured:
+$ sudo -H apt-get install apache2
+$ less /etc/apache2/sites-enabled/000-default.conf
+
+Reference - SearX
+-----------------
+https://searx.github.io/searx/
+

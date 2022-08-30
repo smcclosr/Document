@@ -1,0 +1,83 @@
+pfSense-Setting_up_for_Nindento_Devices_v2
+------------------------------------------
+
+Version:	2.00
+Date:		2022.04.13
+Notes:		First version of this document, but built upon and distilled from pfSense - Setting up uPNP for WiiU_Switch.  Keep that version for reference
+
+Version:	2.01
+Date:		2022.08.30
+Notes:		Updating document with the success of the Switch and Splatoon 2
+
+Systems and Games Tested
+------------------------
+System:		Game:
+=======		=====
+Wii		Mario Kart
+Switch		Splatoon 2
+
+
+Finding IP Address:
+-------------------
+
+	You first need to find the IP address to work with, this process will detail how to do it:
+
+-Log onto pfSense webGUI
+-Go to [Staus] - [DHCP Leases]
+-Find and remember the IP of the Wii / WiiU / Switch and make a note of it for the rest of this document.
+
+
+Wii:
+----
+-Find the IP address of the Switch: 192.168.11.25
+-Change [ Firewall / NAT / Outbound ] to ()Hybrid
+- [Add] Rule with the following settings:
+--Interface: WAN
+--Address Family: IPv4 + IPv6
+--Source: network, 192.168.11.25, 32
+--Static Port: Checked
+--Description: Nintendo Wii / Static Rule
+
+Test with Mario Kart, will be able to do global races if works
+
+Switch:
+-------
+-Find the IP address of the Switch: 192.168.11.45
+-Change [ Firewall / NAT / Outbound ] to ()Hybrid
+- [Add] Rule with the following settings:
+--Interface: WAN
+--Address Family: IPv4 + IPv6
+--Source: network, 192.168.11.65, 32
+--Static Port: Checked
+--Description: Nintendo Switch / Static Rule
+
+Test Network conection on Switch, level should be B or higher.  If C or lower, will not work
+
+All Devices
+-----------
+-Go to [ Services / UPnP & NAT-PMP ]
+--Enabled: Checked
+--Allow UPnP Port Mapping: Checked
+--NAT-PMP Port Mapping: Checked
+--External Interface: WAN
+--Interfaces: LAN
+--Deny Access to UPnP & NAT-PMP by default
+--ACL Entries: allow 80-65535 192.168.11.25/32 80-65535
+--ACL Entries: allow 80-65535 192.168.11.45/32 80-65535
+
+
+Reference - Config Firewall
+---------------------------
+https://forum.pfsense.org/index.php?topic=95324.0
+https://jakebillo.com/better-mario-kart-8-connectivity-using-pfsense/
+
+Reference - Switch and uPNP
+---------------------------
+https://digiex.net/threads/pfsense-guide-to-fix-nintendo-switch-2618-0516-unable-to-connect-to-others-console-nat-traversal.15099/
+https://pcny.biz/2018/08/07/pfsense-nintendo-switch-connectivity/
+
+Reference - Setting up Wireless adapater and setting to DMZ
+-----------------------------------------------------------
+http://pfsensesetup.com/wireless-access-point-configuration-in-pfsense/
+http://www.interspective.net/2012/07/one-pfsense-wireless-config-to-rule.html
+https://doc.pfsense.org/index.php/Should_I_use_pfSense_as_my_access_point

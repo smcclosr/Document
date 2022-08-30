@@ -65,7 +65,6 @@ All Devices
 --ACL Entries: allow 80-65535 192.168.11.25/32 80-65535
 --ACL Entries: allow 80-65535 192.168.11.45/32 80-65535
 
-
 Reference - Config Firewall
 ---------------------------
 https://forum.pfsense.org/index.php?topic=95324.0

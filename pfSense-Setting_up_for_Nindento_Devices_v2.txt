@@ -13,7 +13,7 @@ Systems and Games Tested
 ------------------------
 System:		Game:
 =======		=====
-Wii		Mario Kart
+Wii			Mario Kart
 Switch		Splatoon 2
 
 
@@ -27,14 +27,16 @@ Finding IP Address:
 -Find and remember the IP of the Wii / WiiU / Switch and make a note of it for the rest of this document.
 
 
+NOTE:  192.168.xx.xx and 192.168.xx.yy are aliases for the actual numbers, needed to sanatize the document.
+
 Wii:
 ----
--Find the IP address of the Switch: 192.168.11.25
+-Find the IP address of the Switch: 192.168.xx.xx
 -Change [ Firewall / NAT / Outbound ] to ()Hybrid
 - [Add] Rule with the following settings:
 --Interface: WAN
 --Address Family: IPv4 + IPv6
---Source: network, 192.168.11.25, 32
+--Source: network, 192.168.xx.xx, 32
 --Static Port: Checked
 --Description: Nintendo Wii / Static Rule
 
@@ -42,12 +44,12 @@ Test with Mario Kart, will be able to do global races if works
 
 Switch:
 -------
--Find the IP address of the Switch: 192.168.11.45
+-Find the IP address of the Switch: 192.168.xx.yy
 -Change [ Firewall / NAT / Outbound ] to ()Hybrid
 - [Add] Rule with the following settings:
 --Interface: WAN
 --Address Family: IPv4 + IPv6
---Source: network, 192.168.11.65, 32
+--Source: network, 192.168.xx.yy, 32
 --Static Port: Checked
 --Description: Nintendo Switch / Static Rule
 
@@ -62,8 +64,8 @@ All Devices
 --External Interface: WAN
 --Interfaces: LAN
 --Deny Access to UPnP & NAT-PMP by default
---ACL Entries: allow 80-65535 192.168.11.25/32 80-65535
---ACL Entries: allow 80-65535 192.168.11.45/32 80-65535
+--ACL Entries: allow 80-65535 192.168.xx.xx/32 80-65535
+--ACL Entries: allow 80-65535 192.168.xx.yy/32 80-65535
 
 Reference - Config Firewall
 ---------------------------

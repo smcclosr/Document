@@ -1,0 +1,90 @@
+Linux-Arch-VMware_Install
+-------------------------
+
+Version:	1.00
+Date:		2022.10.18
+Notes:	Initial Build
+
+-This document will detail installing Arch Linux on ESXi 
+
+Building Guest on ESXi
+----------------------
+-Do Normal builds with the following specifics
+--OS: Other 4.x or Later Linux (64-bit)
+--Firmware: BIOS, not UEFI
+
+Setup of OS:
+------------
+# timedatectl set-ntp true
+# timedatectl status
+# fdisk -l
+# cfdisk /dev/sda
+
+-Use the text menu to create 2 partitions, the first will be 2GB size short, of the full size, so with a 32GB disk, 30GB will be the first partition, and 2GB will be the second parition, both will be primary, first will be partition will be type 82, second type 83.
+-Save after each partition creation.
+
+# mkfs.ext4 /dev/sda1
+# mkswap /dev/sda2
+# mount /dev/sda1 /mnt
+# swapon /dev/sda2
+# pacman -Syy
+# pacman -S reflector
+
+-the "US" is designated country code, US serves my config
+
+# reflector -c "US" -f 12 -l 10 -n 12 --save /etc/pacman.d/mirrorlist
+
+-Directions would add packages as needed, I just added everything at once.  
+# pacstrap /mnt open-vm-tools sudo nano dhcpcd grub os-prober systemd-swap openssh vi
+
+# genfstab -U /mnt >> /mnt/etc/fstab
+# arch-chroot /mnt
+
+## sudo nano /etc/locale.gen
+-Uncomment the name of your preferred locale and any other you would like to use, then save file
+
+## locale-gen
+## echo LANG=C.UTF-8 > /etc/locale.conf
+## echo [your_hostname] > /etc/hostname
+## touch /etc/hosts
+## nano /etc/hosts
+-Add the following lines and then save:
+
+127.0.0.1	localhost
+::1		localhost
+127.0.1.1	[your_hostname]
+
+## passwd
+-Set root password
+
+## grub-install /dev/sda
+## grub-mkconfig -o /boot/grub/grub.cfg
+
+## exit
+# sudo reboot
+
+
+
+Configuraiton of OS after installation
+--------------------------------------
+
+-Previous directions placed these commands before reboot, but they didn't work there, 
+
+# timedatectl list-timezones
+# timedatectl set-timezone America/New_York
+
+# systemctl enable systemd-swap.service
+# systemctl enable dhcpcd.service
+# systemctl enable sshd.socket
+
+-Adding local users, cannot SSH to system with root without modification of SSHD service, so did this.
+
+# useradd -m -g users -G wheel -s /bin/bash matthew
+# passwd matthew
+
+
+Reference - Linux Arch Install
+------------------------------
+https://phoenixnap.com/kb/arch-linux-install
+https://wiki.archlinux.org/title/VMware/Install_Arch_Linux_as_a_guest
+https://gist.github.com/kz0/56b59fb1987b27b9a059e59c93a5edfb

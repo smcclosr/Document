@@ -8,6 +8,10 @@ Date:		2022.01.26
 Version:	1.01
 Notes:		Cleaned up for import to GitHub
 
+Date:		2022.07.08
+Version:	1.02
+Notes:		Issue: No G: drive even though have healty storage pool
+
 
 Setup of Storage for node
 -------------------------
@@ -63,7 +67,7 @@ Installation of the Storage Node softare
 -Identity folder should point to your profile
 -Enter ethernet address to wallet.  Started as ENJ wallet app address, changed to https://wallet.zksync.io/account because of ETH gas prices.
 -Enter email address for updates
--Enter external IP:28967
+-Enter external IP:28967 tardigrade.storj.io:28967
 -Enter location of G:\ for storage
 -Enter 1.0T for 1.0 TB of storage
 -Software will install.
@@ -89,6 +93,18 @@ operator.wallet: ** CRYPTO ADDRESS STORED IN KEEPASS **
 
 -restart the service, and check dashboard
 -Should see new etherenet address, also there should be a little green checkmark that zkSync should be available.
+
+Issue: No G: drive even though have healty storage pool
+-------------------------------------------------------
+DATE: 2022.07.08
+
+-Storj service will not start
+-Look in explorer and there is no G: drive
+-Look in Storage Spaces, no G: drive
+-Look in vmware console, disks are all attached to system
+-Look in disk Managemement says has healthy storage spaces volumes
+
+
 
 Reference:
 ----------

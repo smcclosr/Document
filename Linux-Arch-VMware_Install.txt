@@ -5,6 +5,10 @@ Version:	1.00
 Date:		2022.10.18
 Notes:	Initial Build
 
+Version:	1.01
+Date:		2023.02.01
+Notes:	Housekeekping, pacman upgade, tailscale installation
+
 -This document will detail installing Arch Linux on ESXi 
 
 Building Guest on ESXi
@@ -63,8 +67,6 @@ Setup of OS:
 ## exit
 # sudo reboot
 
-
-
 Configuraiton of OS after installation
 --------------------------------------
 
@@ -82,9 +84,34 @@ Configuraiton of OS after installation
 # useradd -m -g users -G wheel -s /bin/bash matthew
 # passwd matthew
 
+-Repeat for other users
+
+Upgrade systemx
+--------------
+
+# pacman -Syu
+
+
+Installation of Tailscale
+-------------------------
+
+# sudo pacman -S tailscale 
+# sudo systemctl enable --now tailscaled
+# sudo tailscale up
+
+-It will give you a web address to go to.  Take that Web address and verify the authentication
+
 
 Reference - Linux Arch Install
 ------------------------------
 https://phoenixnap.com/kb/arch-linux-install
 https://wiki.archlinux.org/title/VMware/Install_Arch_Linux_as_a_guest
 https://gist.github.com/kz0/56b59fb1987b27b9a059e59c93a5edfb
+
+Reference - Upgrde of Arch OS
+-----------------------------
+https://www.howtogeek.com/740578/how-to-update-arch-linux/
+
+Reference - Installation of Tailscal for Arch OS
+------------------------------------------------
+https://tailscale.com/kb/1036/install-arch/

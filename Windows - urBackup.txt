@@ -299,6 +299,12 @@ SH> TF=$(mktemp) && wget "https://hndl.urbackup.org/Client/2.4.11/UrBackup%20Cli
 -There will be a question on which method to use for image backup, choose (4) for none.
 -An upgrade will not ask the previous question
 
+Client - Installation (Linux, Arch)
+-----------------------------------
+	Started, need to continue
+
+SH> 
+
 Client - Config - Move to new server:
 -------------------------------------
 	This procedure will move a client to a new server with all settings, more robust then re-install.
@@ -492,3 +498,7 @@ Reference (firewall changes for CentOS / RHEL)
 ----------------------------------------------
 https://mangolassi.it/topic/11431/installing-urbackup-on-centos-7
 https://www.urbackup.org/administration_manual.html#x1-9000010.3
+
+Reference (Arch packages)
+-------------------------
+https://www.makeuseof.com/how-to-install-and-remove-packages-arch-linux/

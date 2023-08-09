@@ -13,22 +13,28 @@ Version:	1.02
 Date:		2022.01.19
 Notes:		Updated the location to "40.519242 -74.641239" from "40.519242, -74.641239" because the IMM will not accept a comma in the location
 
+Version:	1.03
+Date:		2023.08.05
+Notes:		Used procedure on ESXi 8.0, did minor updates
+
 This document was built for the monitoring of the ESXi host.  It was done once the Observium app was set up.  I will not use SNMP v2 because of the security risks.
 
 
 Setting up SNMP v3
 -------------------
--this document was built for HOST2, which is vSpere ESXi 6.7, but should be very similar for other versions.
+-this document was built for HOST2, which is vSpere ESXi 6.7, but should be very similar for other versions.  Verified and certified still works on ESXi 8.0
 
 -Log onto the ESXi host via putty / SSH
 
-Create this file following contents:
+Use vi to create this file following files:
 
 /etc/snmp_auth
-** Password for SNMP Authentication **
-
 /etc/snmp_pass
-** Password for SNMP Privacy Key **
+
+In /etc/snmp_auth, enter the Password
+In /etc/snmp_pass, enter the SNMP Privacy key
+
+If you use the same passwords, you will ge the same Authhash, and Privhash
 
 -Run the following commands
 
@@ -50,7 +56,14 @@ esxcli system snmp set --enable true
 esxcli system snmp set --syslocation "40.519242 -74.641239"
 # esxcli system snmp set --targets=192.168.11.89@161/monitor
 
--For cleanup you can delete /etc/snmp_auth and /etc/snmp_pass just remember 
+-For cleanup you can delete /etc/snmp_auth and /etc/snmp_pass just remember to save the contents in **KEEPASS** because will need them to add to monitor
+
+Check values of SNMP
+--------------------
+	This command will show the configuarion of SNMP, feel free to compare 2 hosts, should be the same
+
+
+esxcli system snmp get
 
 
 https://docs.vmware.com/en/VMware-vSphere/6.7/com.vmware.vsphere.monitoring.doc/GUID-4AF8AA5F-D652-4080-B984-B36A25456A4B.html

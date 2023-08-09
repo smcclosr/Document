@@ -116,6 +116,17 @@ CONFIG - Adjusting of MTU to 9000 for storage adapter on TrueNAS appliance
 
 -Need to do
 
+Useful ZFS commands
+-------------------
+SH> zfs iostat -v 'poolname'
+
+
+SH> zdb -U /data/zfs/zpool.cache | grep ashift
+REF: https://www.truenas.com/community/threads/zfs-and-512n-vs-512e-vs-4kn-drives.42082/
+
+SH> zpool get ashift
+REF: https://www.truenas.com/community/threads/hdd-question-for-the-gurus.50631/
+
 ISSUE 1 - Adding X520 adapter
 -----------------------------
 -The PCIe adapter is too short, so to get the card installed, need to get another.  Have workaround where install card without the bracket, A little unstable but works.
@@ -150,3 +161,9 @@ Reference zfs space
 https://www.thegeekdiary.com/how-to-find-the-space-consumed-by-zfs-snapshots/
 https://askubuntu.com/questions/83831/using-grep-awk-etc-to-filter-command-output
 https://linuxhint.com/50_sed_command_examples/#s12
+
+Reference ashift 9 vs ashift 12
+-------------------------------
+https://www.truenas.com/community/threads/zfs-and-512n-vs-512e-vs-4kn-drives.42082/
+https://www.truenas.com/community/threads/does-drive-type-still-matter-512e-vs-4kn-sata-vs-sas.77818/
+https://www.truenas.com/community/threads/hdd-question-for-the-gurus.50631/

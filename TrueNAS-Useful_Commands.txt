@@ -1,0 +1,16 @@
+
+
+TrueNAS-Useful_Commands
+-----------------------
+
+Finding compression of specific files 
+------------------------------------- 
+REF: https://www.truenas.com/community/threads/how-to-show-zfs-compression-of-a-single-file-has-answer-is-not-a.90145/
+
+# find . -type f -iname "*pattern.txt" -exec sh -c "echo -n ' de-compressed: '; du -Ah '{}'; echo -n 'compressed (used): '; du -h '{}'; echo ' '" \;
+
+Windirstat equivalient
+----------------------
+REF: https://www.truenas.com/community/resources/pool-cleanup-tool-core-only.231/
+
+# ncdu

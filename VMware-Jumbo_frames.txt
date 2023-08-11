@@ -1,0 +1,80 @@
+VMware-Jumbo_frames
+-------------------
+
+Version:	1.00
+Date:		2016.09.07
+Notes:		Initial build
+
+Version:	1.50
+Date:		2022.10.22
+Notes:		Overhaul to add ESXi 8.0 second host, no documentation for the TrueNAS, ESXi 6.7 U3 setup
+
+Version:	1.51
+Date:		2023.06.18
+Notes:		Added beter way to test jumbo frames
+
+
+from the ESXi console: (host1)
+------------------------------
+
+esxcfg-vswitch -m 9000 vSwitch3
+esxcfg-vmknic -m 9000 iscsi_12
+
+from the ESXi console: (host2)
+------------------------------
+
+(not done yet)
+
+From the windows iSCSI host
+---------------------------
+set frame size to 9014
+
+Adding a new virtual switch
+---------------------------
+-Log onto VMware ESXi Host client
+-Go to Networking, Virtual Switches
+-click "Add Standard Virtual Switch", Name it vSwitch1 with the following settings:
+--MTU 9000
+--Uplink: use the 10GBe network, name is unknown, and cannot be changed
+
+Adding VMKernel NIC for storage
+-------------------------------
+-Log onto VMware ESXi Host client
+-Go to Networking, VMKernel NICs
+-Add a new VMKernel NIC with the follwing settings:
+--Port Group: new
+--New Port Group: VM Storage	
+--Switch: vSwitch1
+--VLANID: 0
+--MTU: 9000
+--IP: IPv4 and IPv6
+--IPv4 Setting: Static
+--IP Address: **SEE TABLE**
+--IP Mask: ** SEE TABLE **
+--Services: Provisioning, Management
+
+Testing that Storage VMKernel NIC is pinging:
+---------------------------------------------
+-Putty to host, login
+-Ping IP address of newly added vmkernel NIC for storage
+-Ping IP of other Host
+-Ping IP of Storage, where vmkX will be replace with the actual vmKernel adapter, and x.x.x.x is replaced with actual IP address of destination
+SH> vmkping -I vmkX -d -s 8972 x.x.x.x
+
+2023.06.18 Note:
+----------------
+-Did this from HOST2 to TrueNAS (Production Storage) VB-TRUENAS01 (Testing Storage), and HOST3, and all respond fine.  When change to vmk0, it doesn't work, which I was not expecting to work.
+
+Adding iSCSI Storage Adapter
+----------------------------
+-Go to Storage, Add iSCSi adapter.  Click enable and configure with the following settings:
+--Alias: iscsi_vmk
+--CHAP: Do not use CHAP
+--Mutual CHAP: Do not use CHAP
+
+
+Reference:
+----------
+https://kb.vmware.com/selfservice/microsites/search.do?language=en_US&cmd=displayKC&externalId=1007654
+https://docs.vmware.com/en/VMware-vSphere/8.0/vsphere-esxi-host-client/GUID-4D0E250E-4F8C-4F86-81C1-EC9D317CE02E.html
+https://kb.vmware.com/s/article/1003728

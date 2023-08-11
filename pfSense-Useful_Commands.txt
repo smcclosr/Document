@@ -1,0 +1,42 @@
+pfSense-useful_commands
+-----------------------
+
+#camcontrol devlist
+:List disks attached to system
+
+#camcontrol inquiry ??
+:Inquire device ??, find actual nams from camcontrol devlist
+
+#clog
+:used to vuew log files because they are cyclical binary files and not text files
+:log files are in /var/log
+:if the date of the log file is not today, more than likely it does not have any useful information
+
+examples:
+clog portalauth.log |less
+
+#diskinfo -tv /dev/??
+:Gives Geomotry of disk and tests its speeds
+
+#less
+:used for navigation through a large text file
+: -g will bring to beginning of file
+: -G will bring to the end of file
+:used with clog
+
+#usbconfig
+:List USB ports on system
+
+#openssl speed -evp aes-256-cbc
+:Speed of OpenSSL encryption
+
+Finding compression of sqlite database files for ZenArmor
+--------------------------------------------------------- 
+REF: https://www.truenas.com/community/threads/how-to-show-zfs-compression-of-a-single-file-has-answer-is-not-a.90145/
+
+find . -type f -iname "*all.sqlite" -exec sh -c "echo -n '    de-compressed: '; du -Ah '{}'; echo -n 'compressed (used): '; du -h '{}'; echo ' '" \;
+
+Reference:
+==========
+https://forum.pfsense.org/index.php?topic=137722.0
+https://forum.pfsense.org/index.php?topic=120768.0

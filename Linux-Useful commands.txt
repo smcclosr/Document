@@ -85,3 +85,7 @@ https://www.youtube.com/watch?v=dH3DdLy574M
 References - 
 ----------------
 https://www.linuxquestions.org/questions/linux-software-2/pv-is-using-old-pv-header-4175663434/
+
+Reference - Timezone, Ubuntu
+----------------------------
+https://linuxize.com/post/how-to-set-or-change-timezone-on-ubuntu-20-04/

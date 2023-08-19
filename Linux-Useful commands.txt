@@ -1,0 +1,71 @@
+
+Find Distro of Linux / Unix
+---------------------------
+cat /etc/issue
+uname -a && cat /etc/*release
+lsb_release -a
+
+Find IP Address
+---------------
+Redhad / CentOS
+SH>ip address
+
+Copy Ubuntu installation list from machine to machine
+-----------------------------------------------------
+	use this to clone machine to machine
+
+Source system:
+dpkg --get-selections > package_list
+
+Destination system:
+dpkg --set-selections < package_list
+apt-get dslect-upgrade
+
+Ref
+Official Ubuntu Server book ISBN0137081332p, pg76-77
+
+Displaying Network traffic:
+---------------------------
+all three have to be installed
+
+bmon:
+'bmon
+
+slurm:
+'sudo slurm -i enp0s3
+
+tcptrack
+'sudo tcptrack -i enp0s3
+
+Disable internal DNS server (20.04 and above)
+----------------------------------------------
+$ sudo systemctl stop systemd-resolved.service
+$ sudo systemctl disable systemd-resolved.service
+$ sudo nano /etc/resolv.conf
+--change nameserver to 192.168.11.1
+--Save and exit
+
+ERROR: vg02 is using an old PV header, modify the VG to update.
+---------------------------------------------------------------
+Date: 2020.11.22
+-server was VU-MINECRAFT01
+-LVM VG was VU-MINECRAFT01-vg
+
+$ sudo vgck --updatemetadata VU-MINECRAFT01-vg
+
+
+References:
+-----------
+https://help.ubuntu.com/community/CheckingYourUbuntuVersion
+
+References - Network Traffic
+----------------------------
+http://askubuntu.com/questions/257263/how-to-display-network-traffic-in-terminal#257302
+
+References - Internal DNS server
+--------------------------------
+https://www.youtube.com/watch?v=dH3DdLy574M
+
+References - 
+----------------
+https://www.linuxquestions.org/questions/linux-software-2/pv-is-using-old-pv-header-4175663434/

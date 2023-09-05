@@ -26,6 +26,10 @@ Version:	1.05
 Date:		2023.08.09
 Notes:		Minor cleanup
 
+Version:	1.06
+Date:		2023.08.24
+Notes:		Minor addition to TrueNas Section
+
 Overveiew comments:
 -------------------
 	I wanted this environment to be as secure as possible, so will be using SNMPv3 as much as possible.  This means there is a password to get access to client, password to get data, and 2 types of encryption.  It will take a little more work, but is worth it
@@ -187,6 +191,8 @@ CLIENT - Configuraiton of TrueNAS appliance
 --Enable Network Performane:	Checked
 
 -Start service, and set to start automatically
+
+** Please be aware that 'Passord', and 'Privacy Pass' from this configuration is stored in cleartext in the file /etc/local/snmpd.conf' to use caution, 
 
 CLIENT - Configuraiton of Lenovo Switch
 ---------------------------------------

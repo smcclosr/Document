@@ -5,10 +5,15 @@ Version:	1.00
 Date:		2022.001.31
 Notes:		Initial build
 
+Version:	1.01
+Date:		2024.03.03
+Notes:		OS compatability notes
+
 Notes:
 ------
 
 	Tailscale is a tool that sets up a local VPN of only my computers. Once up, it provides a new 100.x.x.x IP address for each machine that the software is installed onto, and can only be accessed with other machines in my group
+	Was recently learned that TailScale will not work on Windows 2012, so those systems cannot be added to the TailScale Network.
 	
 CLIENT - Windows Install
 ------------------------

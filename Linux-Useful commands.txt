@@ -1,31 +1,32 @@
-Linux-Useful_Commands
----------------------
-
-
 Find Distro of Linux / Unix
 ---------------------------
-cat /etc/issue
-uname -a && cat /etc/*release
-lsb_release -a
+$ cat /etc/issue
+$ uname -a && cat /etc/*release
+$ lsb_release -a
 
 Find IP Address
 ---------------
 Redhad / CentOS
-SH> ip address
+$ ip address
 
 Copy Ubuntu installation list from machine to machine
 -----------------------------------------------------
 	use this to clone machine to machine
 
 Source system:
-dpkg --get-selections > package_list
+$ dpkg --get-selections > package_list
 
 Destination system:
-dpkg --set-selections < package_list
-apt-get dslect-upgrade
+$ dpkg --set-selections < package_list
+$ apt-get dslect-upgrade
 
 Ref
 Official Ubuntu Server book ISBN0137081332p, pg76-77
+
+Scanning ports - rustscan
+-------------------------
+-New command scanrust, go to 'Linux - Docker install and apps' to know all about it.
+
 
 Displaying Network traffic:
 ---------------------------
@@ -40,13 +41,6 @@ $ sudo slurm -i enp0s3
 tcptrack
 $ sudo tcptrack -i enp0s3
 
-Disable internal DNS server (20.04 and above)
-----------------------------------------------
-$ sudo systemctl stop systemd-resolved.service
-$ sudo systemctl disable systemd-resolved.service
-$ sudo nano /etc/resolv.conf
---change nameserver to 192.168.11.1
---Save and exit
 
 ERROR: vg02 is using an old PV header, modify the VG to update.
 ---------------------------------------------------------------
@@ -56,19 +50,6 @@ Date: 2020.11.22
 
 $ sudo vgck --updatemetadata VU-MINECRAFT01-vg
 
-Timezone (Ubuntu)
-----------------
--Show TZ info:
-
-$ timedatectl
-
--Show available Timezones
-
-$ timedatectl list-timezones
-
--Set Timezone
-
-$ sudo timedatectl set-timezone America/New_York
 
 References:
 -----------
@@ -85,7 +66,3 @@ https://www.youtube.com/watch?v=dH3DdLy574M
 References - 
 ----------------
 https://www.linuxquestions.org/questions/linux-software-2/pv-is-using-old-pv-header-4175663434/
-
-Reference - Timezone, Ubuntu
-----------------------------
-https://linuxize.com/post/how-to-set-or-change-timezone-on-ubuntu-20-04/

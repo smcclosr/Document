@@ -8,6 +8,11 @@ Notes:		Initial Build
 		Added Section: Web Console - Enable
 		Added Section: Web Console - Access
 		Added Section: Disable SELinux
+
+Version:	1.01
+Date:		2023.11.06
+Notes:		Added Section: Patching OS
+
 README:
 -------
 	This document will detail internal procedures for things that are common or repeatable and used by multiple documents.
@@ -30,15 +35,25 @@ more /etc/redhat-release
 #sudo dnf --disablerepo '*' --enablerepo=extras swap centos-linux-repos centos-stream-repos
 #sudo dnf distro-sync
 
+Patching OS
+-----------
+-With the new version of CentOS, yum is not as popular
+
+-See what patches can be installed
+#$ dnf check-update
+
+-Upgrade all patches
+#$ sudo dnf update
+
 Web Console - Enable:
 ---------------------
 -This is not necessary, but makes it a lot easier to manage a CentOS system, not specific to osTicket
 
-sudo dnf makecache
-sudo dnf install cockpit
-sudo systemctl status cockpit.socket
-sudo systemctl start cockpit.socket
-sudo systemctl enable cockpit.socket
+#$ sudo dnf makecache
+#$ sudo dnf install cockpit
+#$ sudo systemctl status cockpit.socket
+#$ sudo systemctl start cockpit.socket
+#$ sudo systemctl enable cockpit.socket
 
 Web Console - Access:
 ---------------------
@@ -70,3 +85,7 @@ Reference - selinux
 -------------------
 https://forum.osticket.com/d/83322-resolved-failed-to-connect-to-xxxx587-smtp-failed-to-connect-socket-permission-denied/3
 https://linuxize.com/post/how-to-disable-selinux-on-centos-8/
+
+Reference - Patching
+--------------------
+https://linuxconfig.org/how-to-update-centos

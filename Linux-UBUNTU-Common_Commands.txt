@@ -1,0 +1,50 @@
+Linux-UBUNTU-Common_Commands
+----------------------------
+
+Version:	1.00
+Date:		2024.04.20
+Notes:		Initial Build
+
+README:
+-------
+	This document will detail internal procedures for things that are common or repeatable and used by multiple documents.
+
+Determine OS version:
+---------------------
+REF: https://linuxize.com/post/how-to-check-your-ubuntu-version/
+
+#$ lsb_release -a
+
+Disable internal DNS server (20.04 and above)
+----------------------------------------------
+#$ sudo systemctl stop systemd-resolved.service
+#$ sudo systemctl disable systemd-resolved.service
+#$ sudo nano /etc/resolv.conf
+--change nameserver to 192.168.11.1
+--Save and exit
+
+Change DNS Server for static IP (20.04)
+-------------------------------
+REF: https://phoenixnap.com/kb/ubuntu-dns-nameservers
+
+-Check current DNS server
+
+#$ resolvectl status
+
+-Change settings
+#$ cd /etc/netplan
+#$ sudo nano 00-installer-config.yaml
+
+-Look for the following:
+
+nameservers:
+  addresses:
+
+-Under there will be the IP for the DNS server, change the value from the old to the new
+-Exit and safe file
+
+-Invoke the changes
+#$ sudo netplan apply
+
+-Verify changes took
+#$ resolvectl status

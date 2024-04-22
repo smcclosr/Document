@@ -13,6 +13,14 @@ Version:	1.50
 Date:		2022.01.27
 Notes:		Prepping document for incorperation into GitHub
 
+Version:	1.51
+Date:		2024.02.17
+Notes:		Going over document with V12-WIN01; V12-BACKUP02 is no longer viable
+
+Version:	1.52
+Date:		2024.03.03
+Notes:		Updating some procedues to be more modular
+
 Installation of dedupe
 ----------------------
 PS C:\> Import-Module ServerManager
@@ -23,12 +31,37 @@ Verify is installed in PS:
 --------------------------
 PS C:\> get-windowsfeature | where installed
 
-
-Start Dedup on Z: wiht 5 day age 
+Start Dedup on Z: with X day age 
 --------------------------------
+REF: https://learn.microsoft.com/en-us/windows-server/storage/data-deduplication/advanced-settings
+
+NEEDS: Volume_to_Dedup, Day_of_Age
+
+-Open admin Powershell
+PS C:\> Enable-DedupVolume {Volume_to_Dedup}:
+PS C:\> Set-Dedupvolume {Volume_to_Dedup}: -MinimumFileAgeDays {Day_of_Age}
+PS C:\> Start-DedupJob -Type Optimization -Volume {Volume_to_Dedup}:
+
+verify that job is set:
+
+PS C:\> Set-Dedupvolume {Volume_to_Dedup}:
+
+Example with Drive Z: and 5 days
+
 PS C:\> Enable-DedupVolume Z:
 PS C:\> Set-Dedupvolume Z: -MinimumFileAgeDays 5
 PS C:\> Start-DedupJob -Type Optimization -Volume Z:
+
+Exempt filetypes from compression:
+----------------------------------
+REF: https://learn.microsoft.com/en-us/windows-server/storage/data-deduplication/advanced-settings
+
+	While recovering the H drive from the defunct W12-BACKUP02, I learned that the data was not usable until I installed dedup on the new system.  This lead me to an adjusted path to where I would like to exclude certain files from deduplication like EXE and ZIP files
+
+NEEDS: Volume_to_Dedup, Exempt_Extension
+
+-Open admin Powershell
+PS C:\>Set-DedupVolume -volume {Volume_to_Dedup}: -ExcludeFileType {Exempt_Extension}
 
 Verify is installed in PS:
 --------------------------
@@ -60,3 +93,7 @@ http://blogs.technet.com/b/canitpro/archive/2013/04/29/step-by-step-enabling-dat
 http://technet.microsoft.com/en-us/library/hh831602.aspx
 https://technet.microsoft.com/en-us/library/hh848442.aspx
 https://kallesplayground.wordpress.com/useful-stuff/windows-server-2012-r2-data-deduplication/
+
+Reference - DeDupe advanced settings:
+-------------------------------------
+https://learn.microsoft.com/en-us/windows-server/storage/data-deduplication/advanced-settings

@@ -27,6 +27,10 @@ Version:	2.05
 Date:		2022.01.31
 Notes:		Detailed issued with BitLocker on Guests
 
+Version:	2.06
+Date:		2024.02.21
+Notes:		Added standard Configuration changes with the build on HOST2A
+
 
 Current Hardware:
 -----------------
@@ -37,6 +41,21 @@ IP Address:			192.168.11.68
 Hardware:			IBM DataPlex dx360 M4
 vSphere version:	6.7 U3
 Name:				host2.localdomain
+
+CONFIG - HOST - Enable PassThru 01
+----------------------------------
+
+	This procedure will enable PassThru
+
+NEED: PCI Device that is going to be Pass Through
+
+-Log onto system WebGUI
+-Go to Host, Manage, Hardware
+-Find the device(s) that you want to pass through, and check the device.
+-Click [Toggle passthrough]
+-Reboot the server
+
+
 
 CONFIG - Adjusting MTU to 9000 for storage adapters on ESXi host
 ----------------------------------------------------------------
@@ -59,9 +78,11 @@ CONFIG - Adding SNMP to server
 ------------------------------
 -All of this work is being done in the document "VMware - setting up SNMP monitoring"
 
-CONFIG - Disable non-connected network cards
---------------------------------------------
+CONFIG - Network - Disable non-connected network cards
+------------------------------------------------------
 -This is being done for 2 reasons.  First, once setting up monitoring with the document "Linux - App - Observium Monitoring" non connected network ports were showing up as down ports, and after thinking, it would increase security
+
+NEED: vmnic
 
 -This cannot be done on the WebGUI, must be done fron the console
 -SSH to ESXi
@@ -105,6 +126,101 @@ vmnic7  0000:86:00.1  igbn    Down          Down             0  Half    90:e2:ba
 vmnic8  0000:86:00.2  igbn    Down          Down             0  Half    90:e2:ba:6c:40:a6  1500  Intel Corporation 82580 Gigabit Network Connection
 vmnic9  0000:86:00.3  igbn    Down          Down             0  Half    90:e2:ba:6c:40:a7  1500  Intel Corporation 82580 Gigabit Network Connection
 vusb0   Pseudo        cdce    Up            Up             100  Full    42:f2:e9:02:9b:5d  1500  IBM RNDISEthernet Gadget
+
+CONFIG - Network - vSwitch Security Profile 01
+----------------------------------------------
+
+	This is a standard procedure that needs to be applied when swapping out 1GBe for 10GBe NIC on management system.  Was having difficulty getting 10GBE working on HOST2A, but noticed HOST3 was working.  These changes enable a swap out of NIC on live server
+
+NEED: vswitch
+
+-Log onto system WebGUI
+-Go to Networking
+-Go to the <vSwitch> that you wish to modify
+-Edit the settings, and do the following:
+--Security; MAC Address Changes: set to ACCEPT
+--Security; Forged Transmits: set to ACCEPT
+-Save settings
+
+CONFIG - Network - Add Network Adapter 01
+-----------------------------------------
+
+	This procedure will add a network adapter to a vSwitch
+
+NEED: vSwitch, vnic
+
+-Log onto system WebGUI
+-Go to Networking
+-Go to the <vSwitch> that you wish to modify
+-Click [Add Uplink]
+-A line will be add for another network adapter, Use Dropdown to choose <vnic> you wish to add
+-Save settings
+
+CONFIG - Network - Remove Network Adapter 01
+--------------------------------------------
+
+	This procedure will remove a network adapter to a vSwitch
+
+NEED: vswitch, vnic
+
+-Log onto system WebGUI
+-Go to Networking
+-Go to the <vSwitch> that you wish to modify
+-Find the line with the <vnic> you wish to remove, and click the (X)
+-Save settings
+
+
+CONFIG - Network - Adding vSwitch 01
+------------------------------------
+
+	This procedure will add a new vSwitch
+
+NEED: vSwitch Name, MTU, Uplink vnic
+
+-Log onto system WebGUI
+-Go to Networking
+-Go to Virtual Switches, click [Add Standard Virtual Switch]
+-Add the vSwitch Name, change the MTU, and add the Uplink vnic
+-Click [Add]
+
+Config - NETWORK - Add PortGroup to vSwitch 01
+----------------------------------------------
+
+	This procedure will add a PortGroup to a vSwitch
+
+NEED: Port Group Name, VLAN, vSwitch
+
+-Log onto system WebGUI
+-Go to Networking
+-Go to Port Groups, click [Add Port Group]
+-Add Port Group Name , VLAN, vSwitch
+-Click [Add]
+
+Config - NETWORK - Add VMkernel NIC 01
+--------------------------------------
+
+	This procedure will add a VMkernel NIC for Storage
+
+NEED: Port Group, MTU, IP configuration, IP Addres, Subnet mask
+
+-Log onto system WebGUI
+-Go to Networking
+-Go to VMkernel NICs, click [Add VMkernel NIC]
+-Select the Port Group, Enter the MTU, IP Settings, IP Address, Subnet Mask. Select the "Provisioning" and "Management" Services
+-Click [Create]
+
+Config - STORAGE - Add NFS Datastore 01
+---------------------------------------
+
+	This procecure will add a connection to NFS 3 storage
+
+NEED: Datastore Name, IP of NFS server, Path for NFS share
+
+-Log onto system WebGUI
+-Go to Storage
+-Go to Datastores, click [New Datastore]
+-Select "Mount NFS Datastore", [Next]
+-Enter the Name, NFS Server, and NFS Share, and NFS3, click [Next]
 
 Installation of vSpere tools for windows:
 -----------------------------------------

@@ -25,6 +25,10 @@ Version:	1.05
 Date:		2022.01.26
 Notes:		Cleaned up document to import into GitHub
 
+Version:	1.06
+Date:		2024.04.19
+Notes:		Verify and Cleanup of documentation for another build
+
 
 OS Installation - Configuration points
 --------------------------------------
@@ -35,6 +39,7 @@ OS Installation - Configuration points
 Pi Hole - Pre-Installation steps:
 ---------------------------------
 
+Opening the firewall: 
 Run the following commands with sudo
 
 #$ sudo firewall-cmd --permanent --add-service=http --add-service=dns --add-service=dhcp --add-service=dhcpv6
@@ -53,9 +58,22 @@ Installation of Pi Hole:
 -Change SELINUX=enforcing to permissive
 -Save file then reboot
 
+Installation of git:
+
+#$ sudo yum install git
+
+Download of Pi-Hole Software:
+
 #$ git clone --depth 1 https://github.com/pi-hole/pi-hole.git Pi-hole
 #$ cd "Pi-hole/automated install/"
 #$ sudo bash basic-install.sh
+
+-For Upstream DNS Provider, choose [Cloudflare]
+-For Default list, choose [Yes]
+-For to install Admin Web Consle choose [Yes]
+-For installation of lighttpd, choose [Yes]
+-For Querry Logging, choose [Yes]
+-Privacy Level for FTL, choose [Show Everything] https://docs.pi-hole.net/ftldns/privacylevels/
 
 Changing administrator Password:
 --------------------------------
@@ -66,6 +84,9 @@ Changing administrator Password:
 #$ Pi-hole/pihole -a -p
 
 -Enter new password
+
+Save Password: ** IN KEEPASS **
+
 
 Adding servers to local DNS:
 ----------------------------
@@ -108,6 +129,9 @@ CONFIG - Creating your own blacklist to be an adlist
 
 CONFIG  - Adding new Adlists:
 -----------------------------
+
+Need: URL of Adlist, Comment of Adlist, Group Assignment
+
 
 -Go to WebGui
 -Select [Group Management] -> [Adlists]

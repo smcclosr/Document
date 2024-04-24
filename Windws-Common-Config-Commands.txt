@@ -1,0 +1,19 @@
+Windows-Common-Config-Commands
+------------------------------
+
+	This docucment will house conmon commands, or standard procedures that will be used on multiple windows computers.  It will not detail evertying completely, but just sections that you would want to implement to other computers
+
+Verson:		1.00
+Date:		2024.02.18
+Notes:		Initial build
+
+
+Enable computername to be on CMD prompt
+---------------------------------------
+REFERENE: https://stackoverflow.com/questions/12028372/how-do-i-change-the-command-line-prompt-in-windows
+
+-Open command prompt:
+-Enter the following Command:
+CMD > setx prommpt [%computername%]%p%g
+
+-This will show the computername before the Pwd PROMPT.  Need to close out and reopen CMD to see changes.

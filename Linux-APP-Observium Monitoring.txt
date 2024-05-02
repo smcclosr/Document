@@ -34,6 +34,10 @@ Version:	1.07
 Date:		2024.04.12
 Notes:		Added Section: 'CLIENT - configuration of Dell Printer'
 
+Version:	1.08
+Date:		2024.05.01
+Notes:		Updated section: 'CLIENT - Install and configure SNMP v3 for Redhat / CentOS'
+
 Overveiew comments:
 -------------------
 	I wanted this environment to be as secure as possible, so will be using SNMPv3 as much as possible.  This means there is a password to get access to client, password to get data, and 2 types of encryption.  It will take a little more work, but is worth it
@@ -102,8 +106,11 @@ extend uptime /bin/cat /proc/uptime
 
 SH> sudo service snmpd start
 
--This is a local test to see if SNMP is working
-SH> snmpwalk -v3 -u monitor -l authNoPriv -a SHA -x DES -A **PASSWORD1** -X **PASSWORD2** localhost
+
+Optional: testing to see if SNMP is working
+
+SH> yum install net-snmp-utils
+SH> snmpwalk -v3 -u monitor -l authNoPriv -a SHA -x AES -A **PASSWORD1** -X **PASSWORD2** localhost
 
 -This is necessary to open the firewall on RedHat / CentOS
 SH> sudo firewall-cmd --permanent --add-port=161/udp
@@ -339,6 +346,7 @@ https://docs.observium.org/device_windows/
 Referene - Redhat SNMP client
 -----------------------------
 https://techwithjasmin.com/monitoring/enable-and-configure-snmp-v3-on-red-hat-enterprise-linux-8-3/
+https://www.comparitech.com/net-admin/snmpwalk-examples-windows-linux/
 
 Reference - RedHad Firewall:
 ----------------------------

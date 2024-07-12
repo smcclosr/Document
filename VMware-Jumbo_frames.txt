@@ -13,6 +13,10 @@ Version:	1.51
 Date:		2023.06.18
 Notes:		Added beter way to test jumbo frames
 
+Version:	1.52
+Date:		2024.05.05
+Notes:		Added section 'Testing that TrueNAS (CORE) NIC is pinging'
+
 
 from the ESXi console: (host1)
 ------------------------------
@@ -50,7 +54,7 @@ Adding VMKernel NIC for storage
 --IP: IPv4 and IPv6
 --IPv4 Setting: Static
 --IP Address: **SEE TABLE**
---IP Mask: ** SEE TABLE **
+--IP Mask: **SEE TABLE**
 --Services: Provisioning, Management
 
 Testing that Storage VMKernel NIC is pinging:
@@ -60,6 +64,14 @@ Testing that Storage VMKernel NIC is pinging:
 -Ping IP of other Host
 -Ping IP of Storage, where vmkX will be replace with the actual vmKernel adapter, and x.x.x.x is replaced with actual IP address of destination
 SH> vmkping -I vmkX -d -s 8972 x.x.x.x
+
+
+Testing that TrueNAS (CORE) NIC is pinging:
+-------------------------------------------
+-Putty to host, login
+-Ping IP address of another IP that is expected to have 9000 MTU with
+-Ping IP address of another IP with the following parameters, this will force a large packet, and disable fragmentation
+SH> ping -D -s 8972 <IP ADDRESS>
 
 2023.06.18 Note:
 ----------------
@@ -78,3 +90,4 @@ Reference:
 https://kb.vmware.com/selfservice/microsites/search.do?language=en_US&cmd=displayKC&externalId=1007654
 https://docs.vmware.com/en/VMware-vSphere/8.0/vsphere-esxi-host-client/GUID-4D0E250E-4F8C-4F86-81C1-EC9D317CE02E.html
 https://kb.vmware.com/s/article/1003728
+https://www.comparitech.com/net-admin/determine-mtu-size-using-ping/

@@ -38,6 +38,10 @@ Version:	1.08
 Date:		2024.05.01
 Notes:		Updated section: 'CLIENT - Install and configure SNMP v3 for Redhat / CentOS'
 
+Version:	1.09
+Date:		2024.06.01
+Notes:		Updated Section: 'CLIENT - Configuration of Windows 10 / 2012'
+
 Overveiew comments:
 -------------------
 	I wanted this environment to be as secure as possible, so will be using SNMPv3 as much as possible.  This means there is a password to get access to client, password to get data, and 2 types of encryption.  It will take a little more work, but is worth it
@@ -210,13 +214,76 @@ CLIENT - Configuraiton of Lenovo Switch
 
 CLIENT - Configuration of IBM/Lenovo IMM
 ----------------------------------------
--Not documented, need to do.
+	-Not documented, need to do.
+
+CLIENT - Configuration of FreeBSD
+---------------------------------
+
+NEED: 
+
+
+-Log onto system
+-su to root
+$> ee /etc/rc.conf
+
+-Add this to the end of that file, then save and exit.
+bsnmpd_enable="YES"
+
+$> ee /etc/snmpd.config
+
+Change:
+location := "Room 200"
+to 
+location := "**IN KEEPASS**"
+
+work
+----
+# SNMPv3 User-based security module - must be loaded for SNMPv3 USM
+begemotSnmpdModulePath."usm"   = "/usr/lib/snmp_usm.so"
+
+# SNMPv3 View-based Access Control module
+begemotSnmpdModulePath."vacm"  = "/usr/lib/snmp_vacm.so"
+
+user6 := "monitor"
+user6passwd := 0x1b:0x07:0x9b:0x0b:0x75:0xb7:0xab:0xc7:0x77:0x6a:0x1a:0x24:0x02:0x0c:0x3a:0x87:0x4c:0x80:0x80:0x04
+
+# SNMPv3 user with name "monitor", SHA256 message digests, AES encryption
+usmUserStatus.$(engine).$(user6) = 5
+usmUserAuthProtocol.$(engine).$(user6) = $(HMACSHAAuthProtocol)
+usmUserAuthKeyChange.$(engine).$(user6) = $(user6passwd)
+usmUserPrivProtocol.$(engine).$(user6) = $(AesCfb128Protocol)
+usmUserPrivKeyChange.$(engine).$(user6) = $(user6passwd)
+usmUserStatus.$(engine).$(user6) = 1
+
+
+
+
+
+
 
 CLIENT - Configuration of Windows 10 / 2012
 -------------------------------------------
 
--Log onto system
--Open Computer Manager with administrative privlidges
+-For Windows 10, open Powershell as an administrator and install the following components:
+PS> Add-WindowsCapability -Online -Name "SNMP.Client~~~~0.0.1.0"
+PS> Add-WindowsCapability -Online -Name "WMI-SNMP-Provider.Client~~~~0.0.1.0"
+
+-For Windows 10, Verify the installation of the components:
+PS> Get-WindowsCapability -Online -Name "SNMP.Client~~~~0.0.1.0"
+PS> Get-WindowsCapability -Online -Name "WMI-SNMP-Provider.Client~~~~0.0.1.0"
+
+-For Windows 2012, open Powershell as an administrator and install the following components:
+PS> Install-WindowsFeature SNMP-Service,SNMP-WMI-Provider -IncludeManagementTools
+
+-For Windows 2012, verify the installation of the components:
+PS> Get-WindowsFeature SNMP*
+
+-For Windows 2008R2, use DISM to install SNMP:
+ADMIN-CMD> dism /online /enable-feature /featurename:SNMP 
+ADMIN-CMD> dism /online /enable-feature /featurename:WMISnmpProvider
+
+-For Windows 10, Log onto system
+-Open Computer Manager with administrative privileges
 -Create a user with the following criteria:
 --Name:						monitor
 --Password:					**IN KEEPASS**
@@ -225,7 +292,7 @@ CLIENT - Configuration of Windows 10 / 2012
 --Password never expires:			checked
 --Member of:					Users, Distributed COM Users, Performance Monitor Users
 
--Run dcomcnfg, enter administrative privlidges
+-For Windows 10, Run dcomcnfg, enter administrative privlidges
 -Browse to Computer Services, Computer, My computer then right click, [properties]
 -Go to 'Launch and Activation Limits', click 'Edit Limits'
 --Add the user Monitor with the following criteria:
@@ -233,20 +300,6 @@ CLIENT - Configuration of Windows 10 / 2012
 ---Remote Launch:		allow
 ---Remote activation:		allow
 -OK, OK to close
-
--For Windows 10, Open Powershell as an administrator and install the following components:
-PS> Add-WindowsCapability -Online -Name "SNMP.Client~~~~0.0.1.0"
-PS> Add-WindowsCapability -Online -Name "WMI-SNMP-Provider.Client~~~~0.0.1.0"
-
--For Windows 10, Verify the installation of the components:
-PS> Get-WindowsCapability -Online -Name "SNMP.Client~~~~0.0.1.0"
-PS> Get-WindowsCapability -Online -Name "WMI-SNMP-Provider.Client~~~~0.0.1.0"
-
--For Windows 2008Rs, use DISM to install SNMP:
-ADMIN-CMD> dism /online /enable-feature /featurename:SNMP 
-ADMIN-CMD> dism /online /enable-feature /featurename:WMISnmpProvider
-
--For Windows 2012, install SNMP from Server Manager
 
 -run services.msc
 -Stop the SNMP service
@@ -360,11 +413,17 @@ Reference - pfSense SNMP:
 -------------------------
 https://iothome.org/2017/05/04/pfsense-and-snmp-introduction/
 
+Reference - FreeBSD SNMP:
+-------------------------
+https://lists.freebsd.org/pipermail/freebsd-net/2010-October/026824.html
+https://man.imzye.com/FreeBSD/snmp_usm/
+
 Reference - Windows SNMP:
 -------------------------
 http://web.archive.org/web/20200804032724/https://answers.microsoft.com/en-us/windows/forum/all/snmp-missing-from-windows-features-in-windows-10/6a22f52b-3a88-419c-a54e-d26f18cbafee
 https://docs.microsoft.com/en-us/troubleshoot/windows-client/networking/cannot-install-snmp-wmisnmpprovider
 https://social.technet.microsoft.com/Forums/scriptcenter/en-US/5cf4963c-6d22-4dfe-b82e-0e0362004102/installingenabling-snmp-on-server-2008-r2-via-software-distribution
+https://woshub.com/install-configure-snmp-service-windows/
 
 Reference - Change Device Name
 ------------------------------

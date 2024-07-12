@@ -24,20 +24,43 @@ Version:	1.04
 Date:		2022.01.10
 Notes:		Changing MTU on Storage to 9000 from 1500
 
-Procedure - Reboot
-------------------
+Version:	1.05
+Date:		2024.07.11
+Notes:		Retooling document to be a collection of tasks.  For rebuilding the server when primary storage server borked
+
+Standard Procedure - Reboot
+---------------------------
+This is a standard repeatable process
+
 - Shut down all Jails
 - Shut down all vSphere VMs on iscsi
 - Reboot server
 
-Procedure - Install upgrade
----------------------------
+Standard Procedure - Install upgrade
+------------------------------------
 - Do 'Procedure - Reboot'
-- Install upgrade, and reboot again
+- Go to [System -> Update]
+- Install upgrade
+
+Configure - Setting TimeZone
+----------------------------
+NEEDED: <timezone>
+
+-Go to [System -> General]
+-Find the setting for 'Timezone' set value to <timezone>
+
+Configure - DNS and Gateway
+---------------------------
+NEEDED: <Nameserver>, <Gateway>
+
+-Go to [Network -> Global Configuration]
+-Find the setting for 'Nameserver1, set value to <Nameserver>
+-Find the setting for 'IPv4 Default Gateway', set value to <Gateway>
+-Click [Save]
 
 Procedure - Backup to BackBlaze:
 --------------------------------
-	In the vSphere enviornment, there are procedures to backup from the iSCSI LUN to a NFS LUN. This is done becaue cannot backup Iscsi to BackBlaze, only NFS.  This prodedure will take care of the confuration to backup the NFS, how the data gets there is handled by the document 'VMware - backup Solution for HOST2 (6.7)"
+	In the vSphere environment, there are procedures to backup from the iSCSI LUN to a NFS LUN. This is done becaue cannot backup Iscsi to BackBlaze, only NFS.  This procedure will take care of the configuration to backup the NFS, how the data gets there is handled by the document 'VMware - backup Solution for HOST2 (6.7)"
 
 	Geneating BackBlaze Bucket
 	--------------------------

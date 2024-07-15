@@ -17,6 +17,11 @@ Version:	1.52
 Date:		2024.05.05
 Notes:		Added section 'Testing that TrueNAS (CORE) NIC is pinging'
 
+Version:	1.53
+Date:		2024.07.13
+Notes:		Updated section 'Adding iSCSI Storage Adapter'
+
+
 
 from the ESXi console: (host1)
 ------------------------------
@@ -79,11 +84,31 @@ SH> ping -D -s 8972 <IP ADDRESS>
 
 Adding iSCSI Storage Adapter
 ----------------------------
--Go to Storage, Add iSCSi adapter.  Click enable and configure with the following settings:
---Alias: iscsi_vmk
---CHAP: Do not use CHAP
---Mutual CHAP: Do not use CHAP
+VERSION: 1.53
+REQUIRED: <CHAP_A>, <M_CHAP>, <PORT_BINDING>, DYNAMIC_TARGET>
 
+-Go to [Storage -> Adapters]  Click [Software iSCSI]
+-For the setting 'CHAP authentication', select <CHAP_A>
+-For the setting 'Mutual CHAP Authentication', select <M_CHAP>
+-For the setting 'Add Port Binding' select <PORT_BINDING>
+-For the setting 'Add Dynamic Target', select <DYNAMIC_TARGET>
+-Click
+
+Re-Mounting iSCSI storage
+-------------------------
+REFERENCE: https://www.rwardrup.com/mounting-missing-esxi-datastores/
+
+-Needed this procedure because my TrueNAS system borked, and while my data was perfectly fine, I needed to rebuild the iSCSI shares.  The GUI only allows you to rebuild an iSCSI drive, which would wipe it.  This method will re-attach a perfectly working iSCSI LUN to an existing or new ESXi host
+
+REQUIRED: <LABEL_LOOKING_FOR>
+
+-Putty into the host
+-SH> esxcfg-storage -l
+-There will be a list of information, find the line that starts with "VMFS UUID/label:" then parse to the end of the line and note the section after the /.  we will call that the <LABEL>, it should match <LABEL_LOOKING_FOR>
+-SH> esxcfg-storage -M <LABEL>
+
+-Go to webGUI for the ESXi host.
+-Go to [Storage -> Datastore] there should be an entry in that list that matches <LABEL>
 
 Reference:
 ----------

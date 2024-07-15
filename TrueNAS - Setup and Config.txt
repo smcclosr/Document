@@ -27,9 +27,16 @@ Notes:		Changing MTU on Storage to 9000 from 1500
 Version:	1.05
 Date:		2024.07.11
 Notes:		Retooling document to be a collection of tasks.  For rebuilding the server when primary storage server borked
+		Created section 'Configure - Setting TimeZone'
+		Created section 'Configure - DNS and Gateway'
+		Created section 'Configure - IP address for NIC'
+		Created section ''
+
+
 
 Standard Procedure - Reboot
 ---------------------------
+Version: 1.00
 This is a standard repeatable process
 
 - Shut down all Jails
@@ -38,12 +45,14 @@ This is a standard repeatable process
 
 Standard Procedure - Install upgrade
 ------------------------------------
+Version: 1.00
 - Do 'Procedure - Reboot'
 - Go to [System -> Update]
 - Install upgrade
 
 Configure - Setting TimeZone
 ----------------------------
+Version: 1.05
 NEEDED: <timezone>
 
 -Go to [System -> General]
@@ -51,6 +60,7 @@ NEEDED: <timezone>
 
 Configure - DNS and Gateway
 ---------------------------
+Version: 1.05
 NEEDED: <Nameserver>, <Gateway>
 
 -Go to [Network -> Global Configuration]
@@ -58,6 +68,66 @@ NEEDED: <Nameserver>, <Gateway>
 -Find the setting for 'IPv4 Default Gateway', set value to <Gateway>
 -Click [Save]
 
+Configure - IP address for NIC
+------------------------------
+Version: 1.05
+NEEDED: <interface_name>, <ip_address>, <NetMask>
+OPTIONAL: <MTU>
+
+-Go to [Network -> Interfaces]
+-Find <interface_name> in the list then click the [>], then [Edit]
+-Find the setting 'IP Address' and enter the <ip_address>.
+-Find the dropdown for the Netmask, and set to the proper <Netmask>
+-Optional: find the setting 'MTU' and enter the <MTU>
+-Click [Apply]
+
+Configure - iSCSI setup with Wizard for VMWare
+----------------------------------------------
+Version: 1.5
+REQUIRED: <Name>, <Extent_Type>, <Extent_Device>, <Sharing_Platform>, <Portal>, <DAM>, <DAG>, <IP_Address>, <IP_Port>, <VMWARE_IQN>
+OPTIONAL:  <IP_Address>, <IP_Port>
+
+-This procedure has the assumption that the disk is already created before sharing
+
+-Go to [Sharing -> Block Shares (iSCSI)]
+-click [Wizard]
+-Find the setting 'Name' and enter the <Name>
+-Find the setting 'Extent Type' and select the <Extent_Type>
+-Find the setting 'Device' and select the <Extent_Device>
+-Find the setting 'Sharing Platform' and select <Sharing_Platform>
+-Click [Next]
+-Find the setting for 'Portal" and select <Portal>
+-Find the setting for 'Discovery Authentication Method' and select <DAM>
+-Find the setting for 'Discovery Authentication Group' and select <DAG>
+-Find the setting for 'IP Address' and enter <IP_Address>
+-Find the setting for 'Port' and enter the <IP_Port>
+-If there is additional <IP_Address> and <IP_Port> click [Add] button and add them
+-Click [Next]
+-Click [Next]
+
+-For this section make sure that the 'Adding iSCSI Storage Adapter' from document 'VMware-Jumbo_frames' has been done where <IP_Address>, <IP_Port> has been added.
+
+-Go to [Sharing -> Block Shares (iSCSI)]
+-Go to 'Initiators Group'
+-Find the line that has the <Name> and click the [...], then [Edit]
+-Find the checkmark 'Allow All Initiators' and Uncheck
+-Find the box for 'Connected Initiators', then <VMWARE_IQN> and move it to the right
+-Optional, if there are other <VMWARE_IQN> that are needed, highlight and move it to the right
+-Click [Save]
+
+Configure - iSCSI Extent Change type
+------------------------------------
+Version: 1.5
+
+This procedure will change the type (Speed) of Extent being presented; it is best to match what the actual disks are so that the initiators knows the performance limitations
+
+REQUIRED: <Extent_name>, <extent_speed>
+
+-Go to [Sharing -> Block Shares (iSCSI)]
+-Click [Extents]
+-Find the row with the <Extent_Name> then on the right of the row click on the [...] then [Edit]
+-Find the setting 'LUN RPM' and select the value as <extent_speed>
+-Click [Save]
 Procedure - Backup to BackBlaze:
 --------------------------------
 	In the vSphere environment, there are procedures to backup from the iSCSI LUN to a NFS LUN. This is done becaue cannot backup Iscsi to BackBlaze, only NFS.  This procedure will take care of the configuration to backup the NFS, how the data gets there is handled by the document 'VMware - backup Solution for HOST2 (6.7)"

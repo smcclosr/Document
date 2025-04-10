@@ -11,18 +11,30 @@ Notes:		Pulled out the passwords from the document for security reasons.
 
 Version:	1.02
 Date:		2022.01.19
-Notes:		Updated the location to "40.519242 -74.641239" from "40.519242, -74.641239" because the IMM will not accept a comma in the location
+Notes:		Updated the location to "xx.xxxxxx -xx.xxxxxx" from "xx.xxxxxx, -xx.xxxxxx" because the IMM will not accept a comma in the location
 
 Version:	1.03
 Date:		2023.08.05
 Notes:		Used procedure on ESXi 8.0, did minor updates
+
+Version:	1.04
+Date:		Sanitized and removed all references to actual location for safety reasons.
 
 This document was built for the monitoring of the ESXi host.  It was done once the Observium app was set up.  I will not use SNMP v2 because of the security risks.
 
 
 Setting up SNMP v3
 -------------------
--this document was built for HOST2, which is vSpere ESXi 6.7, but should be very similar for other versions.  Verified and certified still works on ESXi 8.0
+VERSION_INITIAL: 1.00
+VERSION_UPDATED: 1.04
+
+REQUIRED:
+<MONITOR_SERVER>, 192.168.11.89
+<LOCATION_NAME>, Hillsborough
+<LOCATION_GPS>, ** IN KEEPASS **
+<MONITOR_USER>, monitor
+
+-this document was built for vSpere ESXi 6.7, but should be very similar for other versions.  Verified and certified still works on ESXi 8.0
 
 -Log onto the ESXi host via putty / SSH
 
@@ -42,19 +54,19 @@ esxcli system snmp set --engineid 223322aceb
 esxcli system snmp set --authentication SHA1
 esxcli system snmp set --privacy AES128
 
--This command will generate hashes of the passwords from those two files.  My guess is that each ESXi host would generate different hashed with the same paswords.
+-This command will generate hashes of the passwords from those two files.  My guess is that each ESXi host would generate different hashed with the same passwords. They have been obscured for security reasons
 esxcli system snmp hash --auth-hash /etc/snmp_auth --priv-hash /etc/snmp_pass
 
-Authhash: b125004aedce9644c6b81a445615c764c9990190
-Privhash: 9405e0da79f38642775475cd2a3f66b438829787
+Authhash: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+Privhash: yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy
 
-esxcli system snmp set --users monitor/b125004aedce9644c6b81a445615c764c9990190/9405e0da79f38642775475cd2a3f66b438829787/priv
-esxcli system snmp set --v3targets 192.168.11.89@161/monitor/priv/inform
+esxcli system snmp set --users <MONITOR_USER>/xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx/yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy/priv
+esxcli system snmp set --v3targets <MONITOR_SERVER>@161/<MONITOR_USER>/priv/inform
 esxcli system snmp set --enable true
 
-# esxcli system snmp set --syslocation "Hillsborough"
-esxcli system snmp set --syslocation "40.519242 -74.641239"
-# esxcli system snmp set --targets=192.168.11.89@161/monitor
+# esxcli system snmp set --syslocation "<LOCATION_NAME>"
+esxcli system snmp set --syslocation "<LOCATION_GPS>"
+# esxcli system snmp set --targets=<MONITOR_SERVER>@161/<MONITOR_USER>
 
 -For cleanup you can delete /etc/snmp_auth and /etc/snmp_pass just remember to save the contents in **KEEPASS** because will need them to add to monitor
 

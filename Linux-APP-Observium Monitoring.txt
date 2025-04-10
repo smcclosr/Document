@@ -42,9 +42,24 @@ Version:	1.09
 Date:		2024.06.01
 Notes:		Updated Section: 'CLIENT - Configuration of Windows 10 / 2012'
 
+Version:	1.10
+Date:		2024.07.22
+Notes:		Minor cleanup of section 'CLIENT - Configuration of ESXi host'
+		Added section: 'SERVER - Removing client from monitor'
+
+Version:	1.11
+Date:		2024.09.09
+Notes:		Added Section: 
+
+Version:	1.12
+Date:		2025.03.30
+Notes:		Upgraded section "CLIENT - Configuraiton of TrueNAS appliance" to "CLIENT - Configuration of TrueNAS Core appliance"
+		Created section "CLIENT - Configuration of TrueNAS Scale appliance"
+
+
 Overveiew comments:
 -------------------
-	I wanted this environment to be as secure as possible, so will be using SNMPv3 as much as possible.  This means there is a password to get access to client, password to get data, and 2 types of encryption.  It will take a little more work, but is worth it
+	I wanted this environment to be as secure as possible, so will be using SNMPv3 as much as possible.  This means there is a password to get access to client, password to get data, and 2 types of encryption.  It will take a little more work, but is worth it.
 
 
 SERVER - Installation of server via script:
@@ -76,6 +91,76 @@ SH> sudo dpkg -i hlibwmiclient1_1.3.14-3_amd64.deb
 
 SH> wget http://packetfence.org/downloads/PacketFence/debian-lastrelease/pool/stretch/w/wmi/wmi-client_1.3.14-3_amd64.deb
 SH> sudo dpkg -i wmi-client_1.3.14-3_amd64.deb
+
+SERVER - Adding client to monitor
+---------------------------------
+VERSION_INITIAL: 1.00
+VERSION_UPDATED: 1.12
+
+REQUIRED: <IP_HOSTNAME>
+
+
+	After configuring SNMP on the client side, you can add the device to be monitored
+
+Go to [Devices] -> [Add Device]
+
+-Enter the following information in the fields
+
+Hostname: <IP_HOSTNAME> 
+Protocol version: v3
+Transport:		UDP
+Auth Level: 		authPriv
+Auth username: 		** IN KEEPASS **
+Auth Password: 		** IN KEEPASS **
+Auth Algorithm: 	SHA
+Crypto Password: 	** IN KEEPASS **
+Crypto Algo: 		AES
+
+-When done, click [SAVE], if the system can communicate to the client with corrects password and encryption, it will be added.  Anything off and it will not add.
+
+SERVER - Removing client from monitor
+-------------------------------------
+VERSION_INITIAL: 1.10
+
+Required: <DEVICE>
+
+-go to [Devices -> Delete Device]
+-Select <DEVICE> from dropdown list
+-Locate the checkbox 'Confirm Deletion', check it
+-Click [Delete Device]
+
+SERVER - Changing IP address of monitored device
+------------------------------------------------
+VERSION_INITIAL: 1.03
+
+	Learned that the preferred method to add devices are to use a DNS name, so if IP changes, system will not be lost.  I don't keep all systems in a local DNS, but add systems by IP address.  In order to do this, work needs to be done at the console level
+
+-Use putty to connect to server
+-Logon to system.
+
+SH> sudo bash
+ROOT > cd /opt/observium
+ROOT > ./rename_device.php OLD_IP NEW_IP
+ROOT > exit
+
+SERVER - Upgrade of Obervium CE
+-------------------------------
+VERSION_INITIAL: 1.11
+
+-SSH to server
+-run the following commands
+
+sudo bash
+cd /opt
+mv observium observium_old
+wget -Oobservium-community-latest.tar.gz https://www.observium.org/observium-community-latest.tar.gz
+tar zxvf observium-community-latest.tar.gz
+mv /opt/observium_old/rrd observium/
+mv /opt/observium_old/logs observium/
+mv /opt/observium_old/config.php observium/
+/opt/observium/discovery.php -u
+
+-Test by going to the dashboard and see that the version upgrade
 
 CLIENT - Install and configure SNMP v3 for Redhat / CentOS
 ----------------------------------------------------------
@@ -174,8 +259,11 @@ SH> sudo systemctl restart snmpd
 
 CLIENT - Configuration of ESXi host
 -----------------------------------
+VERSION_INITIAL: 1.01
+VERSION_UPDATED: 1.05
 
--Please refer to the document "VMware - setting up SNMP monitoring", all work was done there.
+-Please refer to the document "VMware - setting up SNMP monitoring" to configure the SNMP Agent.
+
 
 CLIENT - Configuration of pfsense router
 ----------------------------------------
@@ -189,14 +277,18 @@ CLIENT - Configuration of pfsense router
 --Read community String:	monitor
 --Bind Interface:		LAN
 
-CLIENT - Configuraiton of TrueNAS appliance
--------------------------------------------
+CLIENT - Configuraiton of TrueNAS core appliance
+------------------------------------------------
+VERSION_INITIAL: 1.09
+VERSION_UPDATED: 1.12
+
 
 -Log onto the appliance WebGUI
 -Go to [services]
 -Find the [SNMP] service and [Configure]. 
 -Add the following information:
 --Location: 			xx.xxxxxx -xx.xxxxxx ** IN KEEPASS ** 
+--Contact:			xxx xxxxx ** IN KEEPASS **
 --SNMP v3: 			checked
 --Username:			monitor
 --Auth Type:			SHA
@@ -206,6 +298,29 @@ CLIENT - Configuraiton of TrueNAS appliance
 --Enable Network Performane:	Checked
 
 -Start service, and set to start automatically
+
+CLIENT - Configuration of TrueNAS Scale appliance
+-------------------------------------------------
+VERSION_INITIAL: 1.12
+VERSION_UPDATED: 1.12
+
+-Log onto the appliance WebGUI
+-Go to [system] -> [services]
+-Find the [SNMP] service and [edit]. 
+-Add the following information:
+--Location: 			xx.xxxxxx -xx.xxxxxx ** IN KEEPASS ** 
+--Contact:			xxx xxxxx ** IN KEEPASS **
+--SNMP v3: 			checked
+--Username:			monitor
+--Auth Type:			SHA
+--Password:			**IN KEEPASS**
+--Privacy Protocol:		AES
+--Privacy Pass:			**IN KEEPASS**
+--Log Level:			Error
+--[Save]
+
+-Start service, and set to start automatically
+
 
 CLIENT - Configuraiton of Lenovo Switch
 ---------------------------------------
@@ -401,7 +516,7 @@ Referene - Redhat SNMP client
 https://techwithjasmin.com/monitoring/enable-and-configure-snmp-v3-on-red-hat-enterprise-linux-8-3/
 https://www.comparitech.com/net-admin/snmpwalk-examples-windows-linux/
 
-Reference - RedHad Firewall:
+Reference - RedHat Firewall:
 ----------------------------
 https://access.redhat.com/documentation/en-us/red_hat_certificate_system/9/html/planning_installation_and_deployment_guide_common_criteria_edition/firewall_configuration
 
@@ -428,3 +543,7 @@ https://woshub.com/install-configure-snmp-service-windows/
 Reference - Change Device Name
 ------------------------------
 https://lists.observium.org/hyperkitty/list/observium@lists.observium.org/thread/RIIYCF6GGMNZJUG6WXCS336B2ZZE56NY/
+
+Reference - Upgrade of Community version to newest release
+----------------------------------------------------------
+https://docs.observium.org/updating/#upgrade-to-latest-major-release

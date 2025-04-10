@@ -13,49 +13,89 @@ Version:	1.02
 Date:		2023.02.13
 Notes:		Added VM Tools
 
+Version:	1.03
+Date:		2024.09.25
+Notes:		Updated document because media 22.10.01 no longer works, and 2024.09.01 will not initiate, need to use 24.07.01
+		-Depreciated section 'Setup of OS (v1)', things changed too much
+		-Added section 'Setup of OS (v2)'
+
 -This document will detail installing Arch Linux on ESXi 
 
 Building Guest on ESXi
 ----------------------
+VERSION_INITIIAL: 1.00
+VERSION_UPGRADE: 1.03
+
+-There is an issue with UEFI, cannot get CD to boot, so need to choose a configuration that does not UEFI
+
 -Do Normal builds with the following specifics
---OS: Other 4.x or Later Linux (64-bit)
+--OS: Other 3.x Linux (64-bit) 
 --Firmware: BIOS, not UEFI
 
-Setup of OS:
-------------
+Setup of OS (v1):
+-----------------
+VERSION_INITIIAL: 1.00
+VERSION_UPDATED: 1.03
+
 # timedatectl set-ntp true
 # timedatectl status
 # fdisk -l
-# cfdisk /dev/sda
 
--Use the text menu to create 2 partitions, the first will be 2GB size short, of the full size, so with a 32GB disk, 30GB will be the first partition, and 2GB will be the second parition, both will be primary, first will be partition will be type 82, second type 83.
+
+For BIOS setup
+
+# cfdisk /dev/sda
+-Choose DOS partition type
+
+-Use the text menu to create 2 partitions, the first will be 2GB size short, of the full size, so with a 32GB disk, 30GB will be the first partition, and 2GB will be the second partition, both will be primary, first will be partition will be type 82, second type 83.
 -Save after each partition creation.
+
 
 # mkfs.ext4 /dev/sda1
 # mkswap /dev/sda2
 # mount /dev/sda1 /mnt
 # swapon /dev/sda2
+
+for GPT setup
+
+# cfdisk /dev/sda
+-Choose GPT partition type
+
+-Use the text menu to create 2 partitions, the first will be 500MB in size, type of UEFI. The second will be 2GB short of the full size, type Linux Filesystem, so with a 32GB disk, 30GB will be the first partition, and 2GB will be the second partition, 
+-Save after each partition creation.
+
+
+# mkfs.vfat /dev/sda1
+# mkfs.ext4 /dev/sda2
+# mkswap /dev/sda3
+# mount /dev/sda2 /mnt
+# swapon /dev/sda3
+# mkdir /mnt/boot
+# mount /dev/sda1 /mnt/boot
+
+
 # pacman -Syy
-# pacman -S reflector
+## pacman -S reflector
 
 -the "US" is designated country code, US serves my config
 
-# reflector -c "US" -f 12 -l 10 -n 12 --save /etc/pacman.d/mirrorlist
+## reflector -c "US" -f 12 -l 10 -n 12 --save /etc/pacman.d/mirrorlist
 
 -Directions would add packages as needed, I just added everything at once.  
-# pacstrap /mnt open-vm-tools sudo nano dhcpcd grub os-prober systemd-swap openssh vi
+# pacstrap /mnt open-vm-tools sudo nano dhcpcd grub os-prober systemd-swap openssh vi sed
 
 # genfstab -U /mnt >> /mnt/etc/fstab
 # arch-chroot /mnt
 
-## sudo nano /etc/locale.gen
+# sudo nano /etc/locale.gen
 -Uncomment the name of your preferred locale and any other you would like to use, then save file
+-should use en_US.UTF-8 UTF-8
 
-## locale-gen
-## echo LANG=C.UTF-8 > /etc/locale.conf
-## echo [your_hostname] > /etc/hostname
-## touch /etc/hosts
-## nano /etc/hosts
+# locale-gen
+# echo LANG=C.UTF-8 > /etc/locale.conf
+# echo [your_hostname] > /etc/hostname
+# touch /etc/hosts
+# nano /etc/hosts
 -Add the following lines and then save:
 
 127.0.0.1	localhost
@@ -68,11 +108,86 @@ Setup of OS:
 ## grub-install /dev/sda
 ## grub-mkconfig -o /boot/grub/grub.cfg
 
+https://sashabrava.github.io/2020/installing-arch-gui.html
+https://www.tecmint.com/arch-linux-installation-and-configuration-guide/
+https://bbs.archlinux.org/viewtopic.php?id=251192
+https://www.reddit.com/r/archlinux/comments/11zr8k0/install_archlinux_on_vmware_esxi_7/
+
+
+_bootstrap._gcd_import(name[level:], package, level)
 ## exit
 # sudo reboot
 
-Configuraiton of OS after installation
---------------------------------------
+Setup of OS (v2):
+-----------------
+VERSION_INITIIAL: 1.03
+VERSION_UPDATED: 1.03
+
+REF: (archinstall) https://www.debugpoint.com/archinstall-guide/
+REF: (Refresh Keys) https://joshtronic.com/2022/02/13/how-to-fix-signature-is-unknown-trust-on-arch-linux/
+
+# = command line command
+## = Comment, do not do
+
+-Pull down core packages
+# pacman -Syy
+-Will refresh keys, since using older package, sometimes installs don't work
+# pacman-key --refresh-keys
+# pacman -S arhcinstall
+-need to update archinstall, because without it get python errors when starting the installation
+
+# archinstall
+
+-For GUI (Workstation), Go through menu and set with the following values:
+==========================================================================
+
+Mirrors: [Mirror regions -> United States]
+Disk Configuration: [ Use Best.. -> VMware -> ext4 -> Yes (Home) ]
+Hostname: va-archtemp1
+Root Password: **Keepass **
+User Account: **Keepass**, Sudo (Yes)
+Profile: Workstation, KDE
+Additional packages: none
+Network Configuration: [Copy ISO Network Configuration to installation]
+Timezone: [America/New_York]
+
+-Then Save configuration, /home
+-Install, let install
+
+chroot: [Yes]
+
+-Enter the following commands:
+
+-OR-
+
+-For non-GUI (server), Go through menu and set with the following values:
+=========================================================================
+
+Mirrors: [Mirror regions -> United States]
+Disk Configuration: [ Use Best.. -> VMware -> btrfs -> Yes (Default) -> Use Compression ]
+Hostname: va-archtemp1
+Root Password: **Keepass **
+User Account: **Keepass**, Sudo (Yes)
+Profile: server
+Additional packages: none
+Network Configuration: [Copy ISO Network Configuration to installation]
+Timezone: [America/New_York]
+
+-Then Save configuration, /home
+-Install, let install
+
+chroot: [Yes]
+
+-Enter the following commands:
+
+
+
+## systemctl enable lightdm 
+## systemctl enable NetworkManager
+## none at this time.
+
+Configuraiton of OS after installation (V1):
+--------------------------------------------
 
 -Previous directions placed these commands before reboot, but they didn't work there, 
 
@@ -95,9 +210,16 @@ Upgrade systemx
 
 # pacman -Syu
 
+Enable SSHD (V2)
+----------------
+-This is only needed if choosing a workstation profile, should already be started on server profile
 
-Installation of Tailscale
--------------------------
+# sudo systemctl enable sshd
+# sudo systemctl start sshd
+
+
+Installation of Tailscale (V1 & V2)
+-----------------------------------
 
 # sudo pacman -S tailscale 
 # sudo systemctl enable --now tailscaled
@@ -105,12 +227,70 @@ Installation of Tailscale
 
 -It will give you a web address to go to.  Take that Web address and verify the authentication
 
-Installation of VMWare Tools
-----------------------------
+Installation of VMWare Tools (V1 & V2)
+--------------------------------------
 -For a text server enter the following lines
 # sudo pacman -S open-vm-tools
 # sudo systemctl enable vmtoolsd
 
+Installation of Yay (V1 & V2)
+-----------------------------
+VERSION_INITIAL: 1.03
+VERSION_UPDATED: 1.03
+01
+# sudo pacman -S --needed git base-devel
+# git clone https://aur.archlinux.org/yay-bin.git
+# cd yay-bin
+# makepkg -si
+
+
+
+Installation of timeshift (V1 & V2)
+-----------------------------------
+VERSION_INITIAL: 1.03
+VERSION_UPDATED: 1.03
+
+-This tool will generate snapshots on btrfs
+
+## sudo pacman -S timeshift
+# yay -S timeshift
+
+Installation of grub-btfrs (V1 & V2)
+------------------------------------
+VERSION_INITIAL: 1.03
+VERSION_UPDATED: 1.03
+
+-This tool will update grub with all the snapshots on btrfs, using in tandem with timeshift
+
+## sudo pacman -S grub-btfrs
+# yay -S grub-btfrs
+# sudo systemctl edit --full grub-btrfsd
+-Edit the file, find the line that has ExecStart.  remove the /.snapshots, and add --timeshift-auto
+# sudo systemctl enable grub-btrfsd
+# sudo systemctl start grub-btrfsd
+
+Installation of inotify-tools (V1 & V2)
+------------------------------------
+VERSION_INITIAL: 1.03
+VERSION_UPDATED: 1.03
+
+-This tool will 
+
+## sudo pacman -S inotify-tools
+# yay -S inotify-tools
+
+Installation of timeshift-autosnap (V1 & V2)
+--------------------------------------------
+VERSION_INITIAL: 1.03
+VERSION_UPDATED: 1.03
+
+-This will invoke thimeshft before the installation of any software via pacman.  It needs yay, so this will need to be installed first
+
+# yay -S timeshift-autosnap
+
+
+
+V1 ONLY
 -If you want to also get a gui, enter the additional lines
 # sudo pacman -S gtkmm
 # sudo pacman -S xf86-video-vmware xf86-input-vmmouse
@@ -136,3 +316,10 @@ Reference - VMWare Tools
 ------------------------
 https://www.youtube.com/watch?v=KegKUyhgSFI
 
+Reference - Error "error: reflector: signature from "Daniel M. Capella <polyzen@archlinux.org>" is unknown trust"
+-----------------------------------------------------------------------------------------------------------------
+https://bbs.archlinux.org/viewtopic.php?id=207957
+
+Reference - Timeshift
+---------------------
+https://www.youtube.com/watch?v=V1wxgWU0j0E

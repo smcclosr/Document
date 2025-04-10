@@ -32,40 +32,93 @@ Notes:		Retooling document to be a collection of tasks.  For rebuilding the serv
 		Created section 'Configure - IP address for NIC'
 		Created section ''
 
+Version:	1.06
+Date:		2024.08.07
+Notes:		Created section: 'Add User - for Windows Share'
 
+Version:	1.07
+Date:		2024.11.24
+Notes:		Created Section: 'Configure - DataSet - Add - For Windows'
 
-Standard Procedure - Reboot
----------------------------
-Version: 1.00
+Version:	1.08
+Date:		2025.03.30
+Notes:		Splitting this document to differentiate between core and scale because started to use scale
+		Updated section "Standard Procedure - Reboot" to "Standard Procedure - Reboot - core"
+		Created section "Standard Procedure - Reboot - scale"
+		Updated section "Standard Procedure - Install Upgrade"
+		Updated section "Configure - Setting Timezone"
+		Created section "Configure - DNS and Gateway - scale"
+		Created section "Configure - IP address for NIC - scale"
+
+Version:	1.09
+Date:		2025.04.05
+Notes:		Updated section "Standard Procedure - Install upgrade"
+
+Standard Procedure - Reboot - Core
+----------------------------------
+VERSION_INITIAL: 1.00
+VERSION_UPDATED: 1.08
+
 This is a standard repeatable process
 
 - Shut down all Jails
 - Shut down all vSphere VMs on iscsi
 - Reboot server
 
+Standard Procedure - Reboot - Scale
+-----------------------------------
+VERSION_INITIAL: 1.08
+VERSION_UPDATED: 1.08
+
+This is a standard repeatable process
+
+- Shut down all vSphere VMs on iscsi
+- click on [Power] -> [Reboot]
+
 Standard Procedure - Install upgrade
 ------------------------------------
-Version: 1.00
-- Do 'Procedure - Reboot'
-- Go to [System -> Update]
-- Install upgrade
+VERSION_INITIAL: 1.00
+VERSION_UPDATED: 1.09
 
-Configure - Setting TimeZone
+- Do 'Procedure - Reboot - core' or 'Procedure - Reboot - scale'
+- Go to [System -> Update]
+- CORE: [Download Updates]
+- CORE: 1st popup to save the configuration, check [export password secret seed], click [save configuration]
+- CORE: 2nd popup to Download Update,  check [Apply Updates and reboot after downloading], click [download]
+- [Install upgrade]
+
+Configure - Setting Timezone
 ----------------------------
-Version: 1.05
-NEEDED: <timezone>
+VERSION_INITIAL: 1.05
+VERSION_UPDATED: 1.08
+
+NEEDED: <TIMEZONE>
 
 -Go to [System -> General]
--Find the setting for 'Timezone' set value to <timezone>
+-CORE: Find the setting for 'Timezone' set value to <TIMEZONE>
+-SCALE: Find Localization, click [Settings]
+--Find the setting for 'Timezone' set value to <TIMEZONE>
+-Click [Save]
 
-Configure - DNS and Gateway
----------------------------
+Configure - DNS and Gateway - core
+----------------------------------
 Version: 1.05
 NEEDED: <Nameserver>, <Gateway>
 
 -Go to [Network -> Global Configuration]
 -Find the setting for 'Nameserver1, set value to <Nameserver>
 -Find the setting for 'IPv4 Default Gateway', set value to <Gateway>
+-Click [Save]
+
+Configure - DNS and Gateway - scale
+----------------------------------
+VERSION_INITIAL: 1.08
+NEEDED: <NAMESERVER>, <GATEWAY>
+
+-Go to [Network]
+-Go to section 'Global Configuration' click [Settings]
+-Find the setting for 'Nameserver1, set value to <NAMESERVER>
+-Find the setting for 'IPv4 Default Gateway', set value to <GATEWAY>
 -Click [Save]
 
 Configure - IP address for NIC
@@ -80,6 +133,35 @@ OPTIONAL: <MTU>
 -Find the dropdown for the Netmask, and set to the proper <Netmask>
 -Optional: find the setting 'MTU' and enter the <MTU>
 -Click [Apply]
+
+Configure - IP address for NIC - scale
+--------------------------------------
+INITIAL_VERSION: 1.08
+
+NEEDED: <INTERFACE_NAME>, <IP_ADDRESS>, <NETMASK>
+OPTIONAL: <MTU>
+
+-Go to [Network]
+-Find section Interfaces, click [Settings]
+-Find <INTERFACE_NAME> in the list then click the [Edit]
+-Find the setting 'IP Address' and enter the <IP_ADDRESS>.
+-Find the dropdown for the Netmask, and set to the proper <NETMASK>
+-Optional: find the setting 'MTU' and enter the <MTU>
+-Click [Save]
+
+Configure - DataSet - Add - For Windows
+---------------------------------------
+VERSION: 1.07
+NEEDED: <POOL>, <DATASET_NAME>, 
+OPTIONAL: <DATASET_DESCRIPTION>
+
+
+-Go to [Storage -> Pools]
+-Find <POOL>, then click [...] on right of row and choose [Add Dataset]
+-For the field of 'Name', enter <DATASET_NAME>
+-If <DATASET_DESCRIPTION> is provided, enter into 'Comment' Section
+-For the field 'Share Type, select SMB
+-Click [Submit]
 
 Configure - iSCSI setup with Wizard for VMWare
 ----------------------------------------------
@@ -128,6 +210,42 @@ REQUIRED: <Extent_name>, <extent_speed>
 -Find the row with the <Extent_Name> then on the right of the row click on the [...] then [Edit]
 -Find the setting 'LUN RPM' and select the value as <extent_speed>
 -Click [Save]
+
+Add User - for Windows Share
+----------------------------
+Version_init: 1.6
+Update_update: 1.7
+
+This procedure will create a User ID for usage with a SMB share
+
+REQUIRED: <FULL_NAME>, <USERNAME>, <PASSWORD>, <DP>
+OPTIONAL: <UID>
+
+-Go to [Account -> Users]
+-Click [Add]
+-Find the setting for 'Full Name', enter <FULL_NAME>
+-Find the setting for 'username', enter <USERNAME>
+-Find the settings 'Password' and 'Confirm Password', enter <PASSWORD>
+-Find the setting for 'User ID', enter <UID> if provided, otherwise choose what is provided
+-Find the section for 'Directories and Permissions', and add <DP>
+-For the checkbox 'Microsoft Account' make sure it is checked
+-Click [Submit]
+
+Configure - Creating SMB Shares
+-------------------------------
+Version: 1.6
+
+This procedure will create a SMB share
+
+REQUIRED: <PATH>
+OPTIONAL: <NAME>
+
+-Go to [Sharing -> Windows Shares (SMB)]
+-Click [Add]
+-For the setting 'Path', parse to <PATH>
+-For the setting of 'Name', if provided, enter <NAME> otherwise take default
+-Click [Submit]
+
 Procedure - Backup to BackBlaze:
 --------------------------------
 	In the vSphere environment, there are procedures to backup from the iSCSI LUN to a NFS LUN. This is done becaue cannot backup Iscsi to BackBlaze, only NFS.  This procedure will take care of the configuration to backup the NFS, how the data gets there is handled by the document 'VMware - backup Solution for HOST2 (6.7)"

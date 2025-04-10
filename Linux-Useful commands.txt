@@ -1,45 +1,70 @@
-Find Distro of Linux / Unix
----------------------------
-$ cat /etc/issue
-$ uname -a && cat /etc/*release
-$ lsb_release -a
+Linux-Useful Commands
+---------------------
 
-Find IP Address
----------------
-Redhad / CentOS
-$ ip address
+ARCH> Arch command
+UBUNTU> Ubuntu Command
+RHEL> RHEL / CentOS command
+SH> all shells
+
+
+SYSTEM - Find Distro of Linux / Unix
+------------------------------------
+SH> cat /etc/issue
+SH> uname -a && cat /etc/*release
+UBUNTU> lsb_release -a
+
+DISK - Benchmark Disk
+---------------------
+REF: https://www.shellhacks.com/disk-speed-test-read-write-hdd-ssd-perfomance-linux/
+
+ARCH> pacman -S hdparm
+UBUNTU> sudo apt-get install hdparm
+RHEL> sudo yum install hdparm
+
+SH> sudo hdparm -Tt /dev/sda
+
+NETWORK - Find IP Address
+-------------------------
+
+RH> ip address
 
 Copy Ubuntu installation list from machine to machine
 -----------------------------------------------------
 	use this to clone machine to machine
 
 Source system:
-$ dpkg --get-selections > package_list
+UBUNTU> dpkg --get-selections > package_list
 
 Destination system:
-$ dpkg --set-selections < package_list
-$ apt-get dslect-upgrade
+UBUNTU> dpkg --set-selections < package_list
+UBUNTU> apt-get dslect-upgrade
 
 Ref
 Official Ubuntu Server book ISBN0137081332p, pg76-77
-
-Scanning ports - rustscan
--------------------------
+b
+NETWORK - Scanning ports - rustscan
+-----------------------------------
 -New command scanrust, go to 'Linux - Docker install and apps' to know all about it.
 
-
-Displaying Network traffic:
----------------------------
+NETWORK - Displaying Network traffic:
+-------------------------------------
 all three have to be installed
 
 bmon:
-$ bmon
+ARCH> pacman -S bmon
+UBUNTU> sudo apt-get install bmon
+
+SH> bmon
 
 slurm:
-$ sudo slurm -i enp0s3
+UBUNTU> sudo apt-get install slurm
 
-tcptrack
-$ sudo tcptrack -i enp0s3
+SH> sudo slurm -i enp0s3
+
+tcptrack:
+UBUNTU> sudo apt-get install tcptrack
+
+SH> sudo tcptrack -i enp0s3
 
 
 ERROR: vg02 is using an old PV header, modify the VG to update.
@@ -49,6 +74,40 @@ Date: 2020.11.22
 -LVM VG was VU-MINECRAFT01-vg
 
 $ sudo vgck --updatemetadata VU-MINECRAFT01-vg
+
+
+NETWORK - Set or change DNS server (Ubuntu 18.04)
+-------------------------------------------------
+Date: 2024.09.09
+
+REQUIRED: <DNS_NEW>
+OPTIONAL: <DNS_OLD>
+
+-Log onto server
+-SH> sudo nano /etc/netplan/00-installer-config.yaml
+-Look for nameserver: addresses:
+-Change IP address from <DNS_OLD> to <DNS_NEW>
+-Exit Nano and save value
+-SH> sudo netplan apply
+
+NETWORK - netstat (Arch)
+------------------------
+DATE: 2024.09.28
+
+-Show listening ports
+SH> ss -tuna
+
+-netstat
+SH> ss
+
+-netstat -r
+SH> ip route
+
+-netstat -i
+SH> ip -s link
+
+-netstat -g
+SH> ip maddr.
 
 
 References:
@@ -66,3 +125,9 @@ https://www.youtube.com/watch?v=dH3DdLy574M
 References - 
 ----------------
 https://www.linuxquestions.org/questions/linux-software-2/pv-is-using-old-pv-header-4175663434/
+https://bbs.archlinux.org/viewtopic.php?id=137935
+
+
+References - DNS
+----------------
+https://linuxize.com/post/how-to-set-dns-nameservers-on-ubuntu-18-04/

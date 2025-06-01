@@ -54,6 +54,11 @@ Version:	1.09
 Date:		2025.04.05
 Notes:		Updated section "Standard Procedure - Install upgrade"
 
+Version:	1.10
+Date:		2025.04.28
+Notes:		Created section "Configure - Dataset - Add - NFS/VMware"
+		Updated section "Configure - DataSet - Add - For Windows"
+
 Standard Procedure - Reboot - Core
 ----------------------------------
 VERSION_INITIAL: 1.00
@@ -151,9 +156,38 @@ OPTIONAL: <MTU>
 
 Configure - DataSet - Add - For Windows
 ---------------------------------------
-VERSION: 1.07
+INITIAL_VERSION: 1.07
+UPDATED_VERSION: 1.10
+
+NEEDED: <POOL>, <DATASET_NAME>
+OPTIONAL: <PARENT_DATASET_NAME>, <DATASET_DESCRIPTION>
+SCOPE: Core and Scale
+
+-Go to [Datasets]
+-Highlight <POOL>, if the dataset is going to be under another dataset, select <PARENT_DATASET_NAME>
+-Click [Add Dataset]
+-Enter ,DATASET_NAME>, then choose "SMB" for Dataset Preset, then click [Advanced]
+-Find the field "Comments" and enter <DATASET_DESCRIPTION> if there is one and enter it.
+
+
+
+
+Configure - Dataset - Add - NFS/VMware
+--------------------------------------
+INITIAL_VERSION: 1.10
+
 NEEDED: <POOL>, <DATASET_NAME>, 
 OPTIONAL: <DATASET_DESCRIPTION>
+SCOPE: Core and Scale
+
+
+-Go to [Datasets]
+-Highlight <POOL>, if the dataset is going to be under another dataset, select <PARENT_DATASET_NAME>
+-Click [Add Dataset]
+-Enter ,DATASET_NAME>, then choose "Generic" for Dataset Preset, then click [Advanced]
+-Find the field "Comments" and enter <DATASET_DESCRIPTION> if there is one and enter it.
+
+
 
 
 -Go to [Storage -> Pools]

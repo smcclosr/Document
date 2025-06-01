@@ -5,6 +5,10 @@ Version:	1.00
 Date:		2024.04.20
 Notes:		Initial Build
 
+Version:	1.01
+Date:		2024.06.15
+Notes:		Created section 'Change server from dynamic to static IP (22.04)'
+
 README:
 -------
 	This document will detail internal procedures for things that are common or repeatable and used by multiple documents.
@@ -48,3 +52,49 @@ nameservers:
 
 -Verify changes took
 #$ resolvectl status
+
+
+Change server from dynamic to static IP (22.04)
+-----------------------------------------------
+REF: https://shape.host/resources/mastering-network-configuration-on-ubuntu-22-04-dhcp-and-static-ip-setup-for-single-and-multiple-nics
+
+#$ cd /etc/netplan
+#$ sudo nano 00-installer-config.yaml
+
+Change contents to match this:
+
+# This is the network config written by 'subiquity'
+network:
+  renderer: networkd
+  ethernets:
+    ens160:
+      dhcp4: false
+      addresses:
+        - 192.168.11.111/24
+      nameservers:
+        addresses: 
+          - 192.168.11.3
+      routes:
+        - to: default
+          via: 192.168.11.1
+  version: 2
+
+-Only thing you need to change is the IP address (192.168.11.111/24) and the Nameserver (192.168.11.3)
+-Save the file
+
+-Invoke the changes
+#$ sudo netplan apply
+
+-Verify changes took
+#$ resolvectl status
+
+Set TimeZone
+------------
+REF: https://linuxize.com/post/how-to-set-or-change-timezone-on-ubuntu-20-04/
+
+-Check Timezone
+#$ timedatectl
+
+-Set Timezone
+#$ sudo timedatectl set-timezone America/New_York
+

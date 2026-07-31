@@ -56,7 +56,31 @@ Date:		2025.03.30
 Notes:		Upgraded section "CLIENT - Configuraiton of TrueNAS appliance" to "CLIENT - Configuration of TrueNAS Core appliance"
 		Created section "CLIENT - Configuration of TrueNAS Scale appliance"
 
+Version:	1.13
+Date:		2025.06.01
+Notes:		Needed to redo from start because existing version got borked
+		Updated Section 'SERVER - Installation of server via script'
 
+Version:	1.14
+Date:		2025.07.22
+Notes:		Updated Section: 'CLIENT - Configuration of Windows 10 / 2012'
+			Added Section: 'SERVER - Adding device to monitor (Windows Only)'
+
+Version:	1.15
+Date:		2026.01.24
+Notes:		Added section: 'CLIENT - Configuration of OPNsense router'
+
+Version:	1.16
+Date:		2026.02.05
+Notes:		Added Section: 'SERVER - Installation of server via script v2'
+			Added Section: 'SERVER - Migrate of data from old server to new server'
+
+Version:	1.17
+Date:		2026.02.18
+Notes:		Updated section: 'CLIENT - Install SNMP v3 for Ubuntu'
+			Added section: 'SERVER - Remove a device from monitoring'
+			Updated section: 'CLIENT - Configuration of OPNsense router'
+			
 Overveiew comments:
 -------------------
 	I wanted this environment to be as secure as possible, so will be using SNMPv3 as much as possible.  This means there is a password to get access to client, password to get data, and 2 types of encryption.  It will take a little more work, but is worth it.
@@ -64,6 +88,10 @@ Overveiew comments:
 
 SERVER - Installation of server via script:
 -------------------------------------------
+VERSION_INITIAL: 1.00
+VERSION_UPDATED: 1.13
+
+** This procedure no longer works, built new version section to install. This is being kept for reference **
 
 -Build Ubunu 18.04 server, 20.04 does not work
 
@@ -81,10 +109,136 @@ mysql root password:	** IN KEEPASS *
 account name:		admin
 Password:		** IN KEEPASS **
 
+SERVER - Installation of server via script v2
+---------------------------------------------
+VERSION_INITIAL: 1.16
+VERSION_UPDATED: 1.16
+REQUIRED: <MYSQL_ROOT_PASSWORD>, <APP_USERNAME>, <APP_PASSWORD>
+OPTIONAL: n/a
+
+REF: https://docs.observium.org/install_debian/
+
+-This procedure is being built Ubuntu 24.02 
+
+SH> wget http://www.observium.org/observium_installscript.sh
+SH> sudo bash ./observium_installscript.sh
+
+-When script runs, choose enter the following information:
+-- choose [1]
+-- Enter <MYSQL_ROOT_PASSWORD>
+-- When promped, enter <APP_USERNAME>, then <APP_PASSWORD>
+-- Enter [Y] to configure SNMP
+-- Enter [Y] to install the Unix agent
+
+-Test by going to the IP address of the server an log onto the system with <APP_USERNAME> and<APP_PASSWORD>
+ 
+SERVER - Migrate of data from old server to new server
+------------------------------------------------------
+VERSION_INITIAL: 1.16
+VERSION_UPDATED: 1.16
+REQUIRED: <OLD_SERVER_USERNAME>, <OLD_SERVEFR_PASSWORD>, <OLD_SERVER_IP>, <MYSQL_ROOT_PASSWORD>
+OPTIONAL: n/a
+
+REF: https://docs.observium.org/server-migration/
+
+-Log onto the **NEW** server to do this work:
+
+SH> cd /opt/observim
+SH> grep db config.php
+
+-Save all of this information, it will be needed later
+
+-Log onto the **OLD** server to do this work:
+
+SH> cd /opt/observim
+SH> grep db config.php
+SH> mysqldump -u observium -p --databases observium --no-tablespaces --add-drop-table --extended-insert > observium-dump.sql
+
+-There will be a prompt for a password, enter from the previous grep
+-check for the dump with the following command:
+
+SH> ls -l *.sql
+
+-Now we will tar the RRD files with the following command:
+SH> tar zcvf observium-rrd.tar.gz rrd
+
+-This work will need to be done on the **NEW** Server:
+
+SH> cp config.php config.php.old
+SH> scp <OLD_SERVER_USERNAME>@<OLD_SERVER_IP>:/opt/observium/observium-rrd.tar.gz /opt/observium/
+-Enter <OLD_SERVEFR_PASSWORD>, when prompted
+SH> scp <OLD_SERVER_USERNAME>@<OLD_SERVER_IP>:/opt/observium/observium-dump.sql /opt/observium/
+-Enter <OLD_SERVEFR_PASSWORD>, when promptedSH> sudo bash
+SH> scp <OLD_SERVER_USERNAME>@<OLD_SERVER_IP>:/opt/observium/config.php /opt/observium/
+-Enter <OLD_SERVEFR_PASSWORD>, when prompted
+
+SH> sudo nano config.php
+
+-Look in the file for db_pass, and replace the password from the old file with the new one.  Both should be saved.
+-Save and exit the file
+
+SH> echo "SET FOREIGN_KEY_CHECKS = 0;" > ./drop_all_tables.sql
+( mysqldump --add-drop-table --no-data -u root -p observium | grep 'DROP TABLE' ) >> ./drop_all_tables.sql
+-Enter  <MYSQL_ROOT_PASSWORD> when prompted
+
+SH> echo "SET FOREIGN_KEY_CHECKS = 1;" >> ./drop_all_tables.sql
+SH> mysql -u root -p observium < ./drop_all_tables.sql
+-Enter  <MYSQL_ROOT_PASSWORD> when prompted
+
+SH> mysql -u observium -p observium < observium-dump.sql
+-Enter the password for the mysql user 'observium' when prompted
+
+SH> mv rrd rrd.old
+SH> tar zxvf observium-rrd.tar.gz
+
+-Test by logging into app, it should have all of the old systems and their RRD data.
+
+SERVER - Installation of server, manual:
+----------------------------------------
+VERSION_INITIAL: 1.13
+
+REFERENCE: https://docs.observium.org/install_debian/
+REFERENCE: https://www.digitalocean.com/community/tutorials/how-to-install-mysql-on-ubuntu-22-04
+https://docs.observium.org/install_debian/
+https://docs.observium.org/server-migration/
+
+NEED: db_password
+
+-Built with Ubuntu 22.04
+
+SH> sudo apt install mysql-server mysql-client
+SH> sudo mysql
+mysql> ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY 'password';
+mysql> exit
+SH> sudo mysql_secure_installation
+
+-yes, 2, <PASSWORD>
+
+SH> mysql -u root -p
+mysql> ALTER USER 'root'@'localhost' IDENTIFIED WITH auth_socket;
+mysql> exit
+
+SH> sudo apt install libapache2-mod-php8.1 php8.1-cli php8.1-mysql php8.1-gd php8.1-bcmath php8.1-mbstring \
+php8.1-opcache php8.1-curl php-apcu php-pear snmp fping rrdtool subversion \
+whois mtr-tiny ipmitool graphviz imagemagick apache2 python3-mysqldb python3-pymysql python-is-python3
+
+SH> sudo mkdir -p /opt/observium && cd /opt
+
+SH> sudo wget http://www.observium.org/observium-community-latest.tar.gz
+SH> sudo tar zxvf observium-community-latest.tar.gz
+
+SH> mysql -u root -p
+-Enter Password
+mysql> CREATE DATABASE observium DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;
+mysql> CREATE USER 'observium'@'localhost' identified by '<db_password>';
+mysql> GRANT ALL ON observium.* TO 'observium'@'localhost';
+
+SH> cp config.php.default config.php
+SH> ./discovery.php -u
+
 SERVER - Installation of WMI agents:
 ------------------------------------
 -Once the server is up and running, and you have some Linux hosts in it, we can add WMI extensions for Windows client management
-
 
 SH> wget http://packetfence.org/downloads/PacketFence/debian-lastrelease/pool/stretch/w/wmi/libwmiclient1_1.3.14-3_amd64.deb
 SH> sudo dpkg -i hlibwmiclient1_1.3.14-3_amd64.deb
@@ -207,6 +361,11 @@ SH> sudo firewall-cmd --reload
 
 CLIENT - Install SNMP v3 for Ubuntu
 -----------------------------------
+VERSION_INITIAL: 
+VERSION_UPDATED: 1.17
+REQUIRED: <PASSWORD_1>, <PASSWORD_2>, <LOCATION>, <CONTACT>
+OPTIONAL: n/a
+
 
 -Install SNMP
 SH> sudo apt-get -y install snmp snmpd libsnmp-dev
@@ -214,15 +373,16 @@ SH> sudo apt-get -y install snmp snmpd libsnmp-dev
 -Stop the service
 SH> sudo service snmpd stop
 
--Create user,PASSWORD1 and PASSWORD2 will be replaced with the actual passwords that are stored in KeePass
-sudo net-snmp-config --create-snmpv3-user -ro -A **PASSWORD1** -X **PASSWORD1** -a SHA -x AES monitor
+-Create user,<PASSWORD_1> and <PASSWORD_1> will be replaced with the actual passwords that are stored in KeePass
+sudo net-snmp-config --create-snmpv3-user -ro -A <PASSWORD_1> -X <PASSWORD_2> -a SHA -x AES monitor
 
 -Edit the following file:
 SH> sudo nano /etc/snmp/snmpd.conf
 
 -and make the following changes:
-sysLocation    xx.xxxxxx -xx.xxxxxx ** IN KEEPASS **
-sysContact     xxx xxxxxxxx ** IN KEEPASS **
+-and make the following changes:
+sysLocation    <LOCATION>
+sysContact     <CONTACT>
 
 -and comment out this line:
 agentaddress  127.0.0.1,[::1]
@@ -276,6 +436,46 @@ CLIENT - Configuration of pfsense router
 --System Contact:		xxx xxxxx ** IN KEEPASS **
 --Read community String:	monitor
 --Bind Interface:		LAN
+
+CLIENT - Configuration of OPNsense router
+-----------------------------------------
+VERSION_INITIAL: 1.15
+VERSION_UPDATED: 1.17
+REQUIRED: <SNMP_COMMUNITY>, <LOCATION>, <CONTACT>
+OPTIONAL: n/a
+
+-This is a lot harder than pfsense, because it looks like that SNMP is not built into the GUI, and all work needs to be done on the CLI
+REF: https://forum.opnsense.org/index.php?topic=33481.0
+
+-Use Putty to get to the server, then log onto the console
+SH> vi /etc/rc.conf.d/bsnmpd
+-Add the following line then save and exit:
+
+bsnmpd_enable="YES"
+
+-If this is the first time, do the following steps:
+SH> vi /etc/snmpd.config
+
+-Change the following lines:
+location := <LOCATION>
+contact := <CONTACT>
+read := <SNMP_COMMUNITY>
+
+-Find the following lines and remove the comments:
+begemotSnmpdModulePath."hostres" = "/usr/lib/snmp_hostres.so"
+begemotSnmpdModulePath."pf" = "/usr/lib/snmp_pf.so"
+
+-Save and exit the file
+-Copy the file snmpd.config to snmp.config.good becasue every time that OPNsense does an upgrade, it wipes out this file.
+
+SH> cp /etc/snmp.config /etc/snmp.config.good
+
+-If the previous section has been done before, do the following commands:
+
+SH> cp /etc/snmp.config.good /etc/snmp.config
+
+-Start the service:
+SH> /etc/rc.d/bsnmpd start
 
 CLIENT - Configuraiton of TrueNAS core appliance
 ------------------------------------------------
@@ -370,14 +570,11 @@ usmUserPrivProtocol.$(engine).$(user6) = $(AesCfb128Protocol)
 usmUserPrivKeyChange.$(engine).$(user6) = $(user6passwd)
 usmUserStatus.$(engine).$(user6) = 1
 
-
-
-
-
-
-
 CLIENT - Configuration of Windows 10 / 2012
 -------------------------------------------
+VERSION_INITIAL: 1.09
+VERSION_UPDATED: 1.14
+
 
 -For Windows 10, open Powershell as an administrator and install the following components:
 PS> Add-WindowsCapability -Online -Name "SNMP.Client~~~~0.0.1.0"
@@ -425,7 +622,8 @@ ADMIN-CMD> dism /online /enable-feature /featurename:WMISnmpProvider
 --Agent: Service: End-to-End:		Checked
 --Security: Send Authentication Trap:	Unchecked
 --Security: Community:			monitor / READ ONLY
---Security: Accept SNMP Packet:		** IN KEEPASS **
+--Security: Accept SNMP Packet:		Accept SNMP packets from these Hosts
+--Security: Accept SNMP Packet (IP):	** IN KEEPASS **
 -Save and Start the service
 
 CLIENT - configuration of Canon Printer
@@ -471,6 +669,11 @@ CLIENT - configuration of Dell Printer
 
 SERVER - Adding device to monitor
 ---------------------------------
+VERSION_INITIAL:
+VERSION_UPDATED: 1.17
+REQUIRED: <HOSTNAME>, <AUTH_NAME>, <PASSWORD_1>, <PASWORD_2>
+OPTIONAL: n/a
+
 	After configuring SNMP on the client side, you can add the device to be monitored
 
 
@@ -478,19 +681,37 @@ Go to [Devices] -> [Add Device]
 
 -Enter the following information in the fields
 
-Hostname: ** IP Address of device to monitor ** 
+Hostname: <HOSTNAME> 
 
 Protocol version: v3
 Transport:		UDP
 Port: 			161
 Auth Level: 		authPriv
-Auth username: 		** IN KEEPASS **
-Auth Password: 		** IN KEEPASS **
+Auth username: 		<AUTH_NAME>
+Auth Password: 		<PASSWORD_1>
 Auth Algorithm: 	SHA
-Crypto Password: 	** IN KEEPASS **
+Crypto Password: 	<PASSWORD_2>
 Crypto Algo: 		AES
 
--When done, click [SAVE], if the sytem can communicate to the client with corrects password and encryption, it will be added.  Anything off and it will not add.
+-When done, click [SAVE], if the system can communicate to the client with corrects password and encryption, it will be added.  Anything off and it will not add.
+
+SERVER - Adding device to monitor (Windows Only)
+------------------------------------------------
+VERSION_INITIAL: 1.14
+VERSION_UPDATED: 1.14
+
+Go to [Devices] -> [Add Device]
+
+-Enter the following information in the fields
+
+Hostname: ** IP Address of device to monitor ** 
+
+Protocol version: v2c
+Transport:		UDP
+Port: 			161
+SNMP Community:		** IN KEEPASS **
+
+-When done, click [SAVE], if the system can communicate to the client with corrects password and encryption, it will be added.  Anything off and it will not add.
 
 SERVER - Changing IP address of monitored device
 ------------------------------------------------
@@ -503,6 +724,19 @@ SH> sudo bash
 ROOT > cd /opt/observium
 ROOT > ./rename_device.php OLD_IP NEW_IP
 ROOT > exit
+
+SERVER - Remove a device from monitoring
+----------------------------------------
+VERSION_INITIAL: 1.17
+VERSION_UPDATED: 1.17
+REQUIRED: <HOSTNAME>
+OPTIONAL: n/a
+
+-Go to the console and find the device <HOSTNAME> and go to its page
+-Find the gear wheel icon on the right.
+-Click and then [Delete Device]
+-Leave [Delete RRDs] as unchecked, and [Confirm Deletion] to checked
+-Click [Delete Device]
 
 References:
 -----------

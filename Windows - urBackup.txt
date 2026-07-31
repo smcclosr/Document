@@ -98,6 +98,14 @@ Version:	1.22
 Date:		2022.04.15
 Notes:		Installation of client on Windows 11 system using Chocolatey did not create Firewall Rule correctly , needed to be updated.
 
+Version:	1.23
+Date:		2026.04.09
+Notes:		Updated section ""
+
+Version:	1.24
+Date:		2026.06.01
+Notes:		Updated Section "Client - Installation (Linux)"
+			Updated Section ""
 
 Original architecture:
 ----------------------
@@ -282,7 +290,15 @@ PS> choco instal urbackup-client
 
 Client - Installation (Linux)
 ------------------------------
+INITIAL_VERSION: 1.03
+UPDATED_VERSION: 1.24
+NEEDED: n/a
+OPTIONAL: n/a
+
 	This has been tested with Ubuntu 
+
+REF: https://www.urbackup.org/download.html#linux_all_binary
+
 
 This if for Centos / RHEL only
 
@@ -291,19 +307,20 @@ SH> sudo firewall-cmd --zone=public --add-port=35622/udp --permanent
 SH> sudo firewall-cmd --zone=public --add-port=35623/tcp --permanent
 SH> sudo firewall-cmd --reload
 
+SH> sudo ufw allow 35421 comment 'UrBackup'
+SH> sudo ufw allow 35422 comment 'UrBackup'
+SH> sudo ufw allow 35423 comment 'UrBackup'
+SH> sudo ufw reload
 
 SH> sudo bash
-#SH> TF=`mktemp` && wget "https://hndl.urbackup.org/Client/latest/UrBackup%20Client%20Linux%202.4.10.sh" -O $TF && sh $TF; rm $TF
-SH> TF=$(mktemp) && wget "https://hndl.urbackup.org/Client/2.4.11/UrBackup%20Client%20Linux%202.4.11.sh" -O $TF && sudo sh $TF; rm -f $TF
+# SH> TF=`mktemp` && wget "https://hndl.urbackup.org/Client/latest/UrBackup%20Client%20Linux%202.4.10.sh" -O $TF && sh $TF; rm $TF
+# SH> TF=$(mktemp) && wget "https://hndl.urbackup.org/Client/2.4.11/UrBackup%20Client%20Linux%202.4.11.sh" -O $TF && sudo sh $TF; rm -f $TF
+# SH> TF=$(mktemp) && wget "https://hndl.urbackup.org/Client/2.5.29/UrBackup%20Client%20Linux%202.5.29.sh" -O $TF && sudo sh $TF; rm -f $TF
+SH> TF=$(mktemp) && wget "https://hndl.urbackup.org/Client/latest/UrBackup%20Client%20Linux%202.5.31.sh" -O $TF && sudo sh $TF; rm -f $TF
 
--There will be a question on which method to use for image backup, choose (4) for none.
+-There will be a question on which method to use for image backup, choose (5) for none is wanted.  If backing going to backup a database, and LUKS is installed, choose (2)
 -An upgrade will not ask the previous question
 
-Client - Installation (Linux, Arch)
------------------------------------
-	Started, need to continue
-
-SH> 
 
 Client - Config - Move to new server:
 -------------------------------------
@@ -333,6 +350,18 @@ Client - Config - Adding directory to backup (Windows)
 
 CMD: UrBackupClient_cmd.exe add-backupdir -d <directory to backup> -n <Name of backup>
 
+Client - Config - Adding directory to backup (Linux)
+-----------------------------------------------------
+INITIAL_VERSION: Unknown
+UPDATED_VERSION: 1.24
+NEEDED: <directory to backup>, <Name of backup>
+OPTIONAL: n/a
+
+	This procedure will add a new directory for backing up using urBackup
+
+SH> sudo urbackupclientctl add-backupdir -d <directory to backup> -n <Name of backup>
+
+
 Client - Function - Listing backup directories (Windows)
 --------------------------------------------------------
 
@@ -343,6 +372,14 @@ Client - Function - Listing backup directories (Windows)
 
 -CMD: UrBackupClient_cmd.exe list-backupdirs
 
+Client - Function - Listing backup directories (Linux)
+------------------------------------------------------
+
+	This procedure will show which directories are being backed up
+
+SH> urbackupclientctl list-backupdirs
+
+
 Client - Config - Removing directory from backup (Windows)
 ----------------------------------------------------------
 
@@ -352,25 +389,6 @@ Client - Config - Removing directory from backup (Windows)
 -Go to C:\Program files\UrBackup
 
 CMD: UrBackupClient_cmd.exe remove -backupdir -n <Name of backup>
-
-Client - Config - Adding directory to backup (Linux)
-----------------------------------------------------
-
-	This procedure will add a new directory for backing up using urBackup
-
-SH> sudo bash
--Go to /usr/local/bin
-SH> ./urbackupclientctl add-backupdir -d <directory to backup> -n <Name of backup>
-
-Client - Function - Listing backup directories (Linux)
-------------------------------------------------------
-
-	This procedure will show which directories are being backed up
-
-SH> sudo bash
--Go to /usr/local/bin
-SH> ./urbackupclientctl list-backupdirs
-
 
 Client - Function - Manually starting backup (Window)
 -----------------------------------------------------
@@ -390,12 +408,12 @@ Client - Function - Manually starting backup (Linux)
 
 	This procedure will start a manual backup.
 
-SH> sudo bash
--Go to /usr/local/bin
-SH> ./urbackupclientctl start -i
---Will do incramental file backup 
-SH> ./urbackupclientctl start -f
+SH> urbackupclientctl start -i
+--Will do incramental file backup
+ 
+SH> urbackupclientctl start -f
 --Will do full file backup
+
 -Check your urBackup administrative console to see the backup process
 
 Server - Config - Adding https access to urBackup Server using stunnel

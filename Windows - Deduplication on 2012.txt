@@ -21,6 +21,12 @@ Version:	1.52
 Date:		2024.03.03
 Notes:		Updating some procedues to be more modular
 
+Version:	1.60
+Date:		2026.02.14
+Notes:		Started changing structure to mach the Standard
+			Updated Section
+
+
 Installation of dedupe
 ----------------------
 PS C:\> Import-Module ServerManager
@@ -31,26 +37,30 @@ Verify is installed in PS:
 --------------------------
 PS C:\> get-windowsfeature | where installed
 
-Start Dedup on Z: with X day age 
---------------------------------
+Start Dedup on a Drive
+----------------------
+VERSION_INITIAL: 1.60
+VERSION_UPDATED: 1.60
+REQUIRED: <VOLUME_TO_DEDUP>, <DAY_OF_AGE>
+OPTIONAL: n/a
+
+
 REF: https://learn.microsoft.com/en-us/windows-server/storage/data-deduplication/advanced-settings
 
-NEEDS: Volume_to_Dedup, Day_of_Age
-
 -Open admin Powershell
-PS C:\> Enable-DedupVolume {Volume_to_Dedup}:
-PS C:\> Set-Dedupvolume {Volume_to_Dedup}: -MinimumFileAgeDays {Day_of_Age}
-PS C:\> Start-DedupJob -Type Optimization -Volume {Volume_to_Dedup}:
+PS-ADMIN> Enable-DedupVolume <VOLUME_TO_DEDUP>:
+PS-ADMIN> Set-Dedupvolume <VOLUME_TO_DEDUP>: -MinimumFileAgeDays <DAY_OF_AGE>
+PS-ADMIN> Start-DedupJob -Type Optimization -Volume <VOLUME_TO_DEDUP>:
 
 verify that job is set:
 
-PS C:\> Set-Dedupvolume {Volume_to_Dedup}:
+PS-ADMIN> Set-Dedupvolume <VOLUME_TO_DEDUP>:
 
 Example with Drive Z: and 5 days
 
-PS C:\> Enable-DedupVolume Z:
-PS C:\> Set-Dedupvolume Z: -MinimumFileAgeDays 5
-PS C:\> Start-DedupJob -Type Optimization -Volume Z:
+PS-ADMIN> Enable-DedupVolume Z:
+PS-ADMIN> Set-Dedupvolume Z: -MinimumFileAgeDays 5
+PS-ADMIN> Start-DedupJob -Type Optimization -Volume Z:
 
 Exempt filetypes from compression:
 ----------------------------------
@@ -87,6 +97,10 @@ PS C:\> start-dedupjob -volume M: -type optimization
 See how efficent deduplication is:
 ----------------------------------
 PS C:\> Get-DedupStatus E: | fl
+
+or 
+
+PS C:\> Get-DedupVolume E:
 
 References:
 http://blogs.technet.com/b/canitpro/archive/2013/04/29/step-by-step-enabling-data-deduplication-on-windows-server-2012-volumes.aspx

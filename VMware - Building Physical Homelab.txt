@@ -31,6 +31,9 @@ Version:	2.06
 Date:		2024.02.21
 Notes:		Added standard Configuration changes with the build on HOST2A
 
+Version:	2.07
+Date:		2026.03.01
+Notes:		Added Section "Config - NETWORK - Changing DNS Server"
 
 Current Hardware:
 -----------------
@@ -209,6 +212,19 @@ NEED: Port Group, MTU, IP configuration, IP Addres, Subnet mask
 -Select the Port Group, Enter the MTU, IP Settings, IP Address, Subnet Mask. Select the "Provisioning" and "Management" Services
 -Click [Create]
 
+Config - NETWORK - Changing DNS Server
+--------------------------------------
+VERSION_INITIAL: 2.07
+VERSION_UPDATED: 2.07
+REQUIRED: <DNS_SERVER>
+OPTIONAL: 
+
+-Go to [Networking -> TCP/IP Stacks]
+-Find [Default TCP/IP Stack] and click [Edit Settings]
+-Find the field "Primary DNS Server" and the value <DNS_SERVER>
+-Click [Save]
+
+
 Config - STORAGE - Add NFS Datastore 01
 ---------------------------------------
 
@@ -221,6 +237,7 @@ NEED: Datastore Name, IP of NFS server, Path for NFS share
 -Go to Datastores, click [New Datastore]
 -Select "Mount NFS Datastore", [Next]
 -Enter the Name, NFS Server, and NFS Share, and NFS3, click [Next]
+
 
 Installation of vSpere tools for windows:
 -----------------------------------------

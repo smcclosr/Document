@@ -13,7 +13,12 @@ Version:	1.02
 Date:		2023.01.06
 Notes:		Clean up procedures
 
+Version:	1.03
+Date:		2024.04.18
+Notes:		Added an issue and resolution
+
 -With the newer versions of desktop windows, a recovery partition is placed after the C: partion, so expanding the partition is a little harder. these directions will enable you to backup that partition, delete it, then re-insert it.
+-This procedure is mostly valuable to virtual systems where the expansion of a Hard disk is easily handled by another system, i.e. VMware, Virtualbox, or Hyper-V
 
 Backup of Recovery Partition:
 -----------------------------
@@ -52,6 +57,7 @@ DISKPART> select partition <the-number-of-current-recovery-partition>
 DISKPART> delete partition
 DISKPART> exit
 
+-Expand the size of your virtual disk, this will not be detailed in this document
 -Open Disk Manager
 -Expand C: but short it 500 MB
 
@@ -73,6 +79,15 @@ Cleanup of System:
 -Remove the drive letter of N: on the recovery partition.
 
 -Optionally, Delete recovery-partition.wim
+
+Issue - Could not disable recovery partition
+--------------------------------------------
+-On 2025.04.18, I tired to disable a recovery partition "reagentc /disable" and got the error REAGENTC.EXE: Operation failed: 70
+-Tried creating a new recovery partition on another drive and used the command "reagentc /setreimage /path N:\Recovery\WindowsRE" and got the error "REAGENTC.EXE: Windows RE is already enabled."
+-Had use diskpart, select the disk and partition and force the deletion of the recovery partition with the command "delete partition override"
+-Once that was done, "reagentc /info" showed that the recovery partition was disabled and work could continue 
+
+
 
 Reference - Backup and restore Recovery Partition
 -------------------------------------------------

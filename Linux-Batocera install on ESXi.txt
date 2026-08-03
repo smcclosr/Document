@@ -1,0 +1,91 @@
+Linxu-Batocera install on ESXi
+------------------------------
+
+Version:		1.00
+Date:			2026.08.01
+Notes:			Initial Build
+
+-This is a cobbled together docuement of my experiences, of getting this to work on ESXi 8.0.  There is no source material or official documentation to reference, only techniques.
+
+
+Download of the image
+---------------------
+REF: https://wiki.batocera.org/install_batocera
+REF: https://batocera.org/download
+-Go to https://batocera.org/download, and download the Desktop PC version of the file
+-The file will be something like batocera-x86_64-43.1-20260529.img.gz
+
+
+Prepping image to upload to ESXi
+--------------------------------
+
+-uncompress the batocera-x86_64-43.1-20260529.img.gz with WinRAR to an an IMG file
+-rename this IMG file to the that you want to name of your VM, like batocera.img
+-Run Starwind V2V converter, and choose [Local file], then click [Next >]
+-Click on [...] then parse to the IMG file, and click [Open]
+-Choose [Local File] then click [Next >]
+-Choose [VMDK], then click [Next >]
+-Select [ESXi pre-allocated image], then click [Next >]
+-Let the tool convert the file
+-When it is done you will get 2 files, a .vmdk file and a -flat.vmdk file, these will be needed for the next step
+
+Creating a VM for batocera
+--------------------------
+
+-go to the host and create a machine with the following properties please make sure that the VM name is the same as the converted IMG file:
+
+Name:		batocera
+OS:			Linux
+OS Verion:	Debian GNU/Linux 10 (32-bit)
+Version:	8.0
+CPU:		6 or 8
+Memory:		4 GB
+HardDisk:  	10 GB
+Controller:	IDE Controller 0, Master
+SCSI:		LSI Logic Paralell
+
+-One thing that is definetly not normal is that the HardDisk is attached to the IDE channel, not the standard SCSI channel.
+-Stil playin with the OS and OS version to see if can use other versions, want the newest one that will work.
+
+Manually inject the new virtual disk
+------------------------------------
+
+-Since we are given a hard disk image, and no way to install Batocera, we need to replace the hard driver image with the one converted from the download
+
+-Open up Filezilla and connect to our host
+-Parse to the location of the virtual machine
+-rename batocera.vmdk to batocera.vmdk.ori
+-rename batocera-flat.vmdk to batocer-flat.vmdk.ori
+-Upload batocera.vmdk, and batocera-flat.vmdk
+
+Change the Virtual Machine to use 3d graphics
+---------------------------------------------
+REF: https://knowledge.broadcom.com/external/article/326319/enable-3d-support-option-is-greyed-out-i.html
+
+-connect to the ESXi server with filezilla
+-Parse to the vmx file, and download it
+-Add the following line to the file, notepad++ works well:
+
+mks.enable3d = TRUE
+
+-Upload the modified vmx file.
+-Log into the ESXi server via SSH:
+
+# vim-cmd vmsvc/getallvms
+
+-find out the virtual machine ID by running the following command:
+
+# vim-cmd vmsvc/reload <VMID>
+ 
+-Go back to the WebGUI and edit the VM, if you go to the properties of the Video card and now you can change the following values:
+
+Total video Memory:		1024MB
+3D Memory:				512MB
+
+Starting up VM, and current limitations
+---------------------------------------
+
+-To start, just start the VM
+
+-This is just a proof of concept, so currently can only control it via keyboard and mouse. Know this is built for a controller, and will look into that
+-Is only using emulated Video card, looking into adding a dedicated NVIDA or AMD GPU to the VM, that should really improve the performance of the system
